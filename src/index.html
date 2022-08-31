@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Todo List</title>
-<link rel="icon" href="icon-todo.png"><script defer src="runtime.js"></script><script defer src="main.js"></script></head>
+	<title><%= htmlWebpackPlugin.options.title %></title>
+</head>
 <body>
     <header>
         <p>header</p>
@@ -14,7 +14,7 @@
     <footer>
         <h2>Héctor González Orozco</h2>
         <a href='https://github.com/hectorgonzalezo/todo-list'>
-            <img alt="github logo" id="github-logo" src=7615be16eed41f806def.png >
+            <img alt="github logo" id="github-logo" src=<%=require("./assets/github-logo.png")%> >
         </a>
     </footer>
 </body>

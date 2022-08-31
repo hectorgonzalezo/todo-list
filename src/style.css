@@ -1,5 +1,36 @@
-@import './reset.css'
+@import './reset.css';
 
-body {
-	background-color: red;
+body{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: red;
+    height: 8rem;
+}
+
+main {
+    background-color: blue;
+    height: 100%;
+}
+
+footer {
+    position: relative;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    width: 100%;
+    gap: 2vw;
+    background-color: grey;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 1.5rem;
+}
+
+#github-logo {
+    height: 30px;
 }

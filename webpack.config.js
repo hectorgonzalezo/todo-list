@@ -12,7 +12,9 @@ module.exports = {
 	},
 	plugins: [
     new HtmlWebpackPlugin({
-      title: 'Output Management',
+      title: 'Todo List',
+			favicon: './src/assets/icon-todo.png',
+			template: './src/index.html'
     }),
   ],
 	output: {
