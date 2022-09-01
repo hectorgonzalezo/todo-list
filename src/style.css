@@ -48,41 +48,6 @@ main {
     position: relative;
 }
 
-#todo-area{
-    --gap-size: 20px;
-    width: 100%;
-    display: grid;
-    gap: var(--gap-size);
-    padding: var(--gap-size);
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 20fr;
-    justify-items: center;
-    align-items: center;
-}
-
-#todo-area > h1 {
-    grid-column: 1 / -1;
-    grid-row: 1 / 2;
-}
-
-#todos-list-view{
-    grid-column: 1 / 2;
-    grid-row: 2 / -1;
-}
-
-#todo-detail-view{
-    grid-column: 2 / -1;
-    grid-row: 2 / -1;
-}
-
-#todo-area > div{
-    background-color: var(--color-medium-light);
-    padding: 20px;
-    border-radius: 1rem;
-    box-shadow: 4px 4px 8px 2px grey;
-    height: 80%;
-    width: 80%;
-}
 
 #sidebar {
     background-color: var(--color-medium-light);
@@ -124,6 +89,92 @@ main {
     grid-row:  2 / -1;
     grid-column: 2 / -1;
 }
+
+#todo-area{
+    --gap-size: 20px;
+    width: 100%;
+    display: grid;
+    gap: var(--gap-size);
+    padding: var(--gap-size);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 20fr;
+    justify-items: center;
+    align-items: center;
+}
+
+#todo-area > h1 {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+}
+#todo-container{
+    grid-column: 1 / 2;
+    grid-row: 2 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+#todo-container{
+    grid-column: 2 / -1;
+    grid-row: 2 / -1;
+}
+
+#todo-area > div{
+    background-color: var(--color-medium-light);
+    padding: 20px;
+    border-radius: 1rem;
+    box-shadow: 4px 4px 8px 2px grey;
+    height: 80%;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: scroll;
+}
+
+#details-display{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-evenly;
+}
+
+.todo {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    grid-template-rows: 1fr 1fr;
+    padding: 5px;
+    align-items: center;
+    border-radius: 0.5rem;
+}
+
+.todo > div,
+.todo > h3 {
+    grid-row: 1 / 2;
+}
+
+.todo > p{
+    grid-row: 2 / -1;
+    grid-column: 2 / -1;
+    font-style: italic;
+}
+
+.todo:hover{
+    background-color: var(--color-medium-dark);
+}
+
+.todo.selected{
+    background-color: var(--color-medium-dark);
+    outline: solid 1px var(--color-dark);
+}
+
+.check-box{
+    background-color: red;
+    width: 24px;
+    height: 24px;
+}
+
+
 
 
 #popup {

@@ -1,5 +1,5 @@
 import PubSub from "pubsub-js";
-import { todoManager, listManager } from "./todos.js";
+import { todoManager, listManager, inboxManager} from "./todos.js";
 
 const webpage = (
     function () {
@@ -10,7 +10,7 @@ const webpage = (
     }
 )();
 
-const header = (
+const headerController = (
     function () {
         const _buttonOpenMenu = document.querySelector('#button-open-menu');
         const _buttonAdd = document.querySelector('#button-add-todo');
@@ -25,7 +25,7 @@ const header = (
     }        
 )();
 
-const sidebar = (
+const sidebarController = (
     function () {
         const _sideBar = document.querySelector('#sidebar');
         const _listsArea = document.querySelector('#lists-area');
@@ -93,7 +93,7 @@ const sidebar = (
 
         //create lists stored on listManager on site load
         const _populateInitialLists = function () {
-            const existingLists = listManager.getLists();
+            const existingLists = listManager.getAllLists();
             for (const property in existingLists){
                 _addList(property)
             }
@@ -107,7 +107,81 @@ const sidebar = (
     }
 )();
 
-const popup = (
+const mainTodoListController = (
+    function() {
+        const _titleList = document.querySelector('#list-title');
+        const _todoContainer = document.querySelector('#todos-container');
+        const _todos = _todoContainer.children;
+
+        //update left side div with items from list
+        const _renderList = function(msg, list=inboxManager.getList()) {
+            //update title
+            _titleList.innerText = list.getName();
+            const listContent = list.getContent();
+
+            //append all content to div
+            for (const todo of listContent){
+                _renderTodo(todo)
+            }
+
+            //select first element
+            _todoContainer.firstElementChild.classList.add('selected');
+            PubSub.publish('todo-selected', listContent[0])
+        }
+
+        const _renderTodo = function(todo){
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('todo');
+
+            //create elements
+            const checkBox = document.createElement('div');
+            checkBox.classList.add('check-box');
+            const todoName = document.createElement('h3');
+            todoName.innerText = todo.getName();
+            const todoList = document.createElement('p');
+            todoList.innerText = todo.getList();
+
+            wrapper.append(checkBox, todoName, todoList);
+            _todoContainer.append(wrapper);
+
+            //add eventListener that selects wrapper
+            wrapper.addEventListener('click', () =>{
+                _selectTodo(wrapper)
+                PubSub.publish('todo-selected', todo);
+            })
+        };
+
+        const _selectTodo = function(todoWrapper){
+            //remove selected from the rest of todos
+            const currentTodos = Array.from(_todos)
+            currentTodos.forEach((todo) => todo.classList.remove('selected'));
+            todoWrapper.classList.add('selected');
+            
+        }
+        PubSub.subscribe('webpage-loaded', _renderList);
+    }
+
+)();
+
+const mainDetailsController = (
+    function(){
+        const _detailContainer = document.querySelector('#details-container');
+        const _detailName = document.querySelector('#detail-name');
+        const _detailPriority = document.querySelector('#detail-priority');
+        const _detailList = document.querySelector('#detail-list');
+        const _detailNotes = document.querySelector('#detail-notes');
+
+        const _renderDetails = function(msg, todo){
+            _detailName.innerText = todo['name'];
+            _detailPriority.innerText = todo['priority'];
+            _detailList.innerText = todo['list'];
+            _detailNotes.innerText = todo['notes'];
+        }
+
+        PubSub.subscribe('todo-selected', _renderDetails)
+    }
+)();
+const popupController = (
     function() {
         const _popup = document.querySelector('#popup');
         const _listsSelector = document.querySelector('#add-todo-list');
@@ -121,9 +195,7 @@ const popup = (
         const _populateListsSelector = function () {
             //an option is the html element <option>
             //extract lists
-            const lists = listManager.getLists();
-            //key in list object is also the name
-            const listArray = Object.keys(lists);
+            const lists = listManager.getAllLists();
 
             const existingOptions = Array.from(_listsSelector.children);
             //extract text from exisingSelectors
@@ -131,7 +203,6 @@ const popup = (
                 return selector.innerText;
             })
 
-            console.log(optionsText)
             //append each one to selector
             listArray.forEach((listName) =>{
                 //add options if it's not included already
