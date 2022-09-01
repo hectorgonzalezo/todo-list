@@ -3,22 +3,21 @@ import { todoManager, listManager } from "./todos.js";
 
 const webpage = (
     function () {
-        
-
-        
+        //when loaded, update lists on sidebar
+        window.addEventListener('load', () => {
+            PubSub.publish('webpage-loaded');
+        })
     }
 )();
 
 const header = (
     function () {
-        const _header = document.querySelector('header');
         const _buttonOpenMenu = document.querySelector('#button-open-menu');
         const _buttonAdd = document.querySelector('#button-add-todo');
 
         _buttonOpenMenu.addEventListener('click', ()=> {
             PubSub.publish('pressed-menu-button')
         });
-
 
         _buttonAdd.addEventListener('click', () => {
             PubSub.publish('pressed-add-button')
@@ -48,7 +47,6 @@ const sidebar = (
              listField.append(listTitle)
 
              _listsArea.append(listField)
-
         }
 
 
@@ -91,12 +89,21 @@ const sidebar = (
                 inputForm.remove();
                 _buttonAddList.disabled = false;
             });
+        };
+
+        //create lists stored on listManager on site load
+        const _populateInitialLists = function () {
+            const existingLists = listManager.getLists();
+            for (const property in existingLists){
+                _addList(property)
+            }
         }
 
         //when pressing button to add lists
         _buttonAddList.addEventListener('click', _showListAdder)
 
         PubSub.subscribe('pressed-menu-button', _toggle);
+        PubSub.subscribe('webpage-loaded',  _populateInitialLists);
     }
 )();
 
@@ -112,11 +119,34 @@ const popup = (
         }
 
         const _populateListsSelector = function () {
-            listManager.getLists();
+            //an option is the html element <option>
+            //extract lists
+            const lists = listManager.getLists();
+            //key in list object is also the name
+            const listArray = Object.keys(lists);
+
+            const existingOptions = Array.from(_listsSelector.children);
+            //extract text from exisingSelectors
+            const optionsText = existingOptions.map((selector) => {
+                return selector.innerText;
+            })
+
+            console.log(optionsText)
+            //append each one to selector
+            listArray.forEach((listName) =>{
+                //add options if it's not included already
+                if (!optionsText.includes(listName)){
+                //create options to add
+                const newOption = document.createElement('option');
+                newOption.setAttribute('data', listName);
+                newOption.innerText = listName;
+                _listsSelector.append(newOption)
+                }
+            })
         }
 
         //this function is ran when pressing the "create" button
-        const _createTodo = function (button) {
+        const _createTodo = function () {
             button.preventDefault();
             _toggle();
         }

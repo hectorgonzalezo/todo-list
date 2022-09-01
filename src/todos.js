@@ -1,9 +1,14 @@
 
 
-//todo factory function
-const Todo = function(title, description, dueDate, priority, notes, list) {
-
-    return {title, description, dueDate, priority, notes, list}
+//todo class
+class Todo {
+    constructor(name, notes, dueDate, priority, list){
+        this.name = name;
+        this.notes = notes;
+        this.dueDate = dueDate;
+        this.priority = priority;
+        this.list = list;
+    }
 }
 
 const List = function(name){
@@ -22,7 +27,6 @@ const todoManager = (
         let todos = {};
 
         function addTodo(data){
-
         }
 
         PubSub.subscribe('pressed-add-button', addTodo)
@@ -31,7 +35,7 @@ const todoManager = (
 
 const listManager = (
     function () {
-        let lists = {};
+        let lists = {'web':'web', 'asdf':'asdfa'};
 
         function addList(msg, listName){
             lists[listName] = List(listName);
@@ -39,16 +43,20 @@ const listManager = (
         }
 
         const getLists = function(){
-            return [1, 2, 3]
+            return lists
+        }
+
+        const _publishLists = function(){
+
         }
 
         PubSub.subscribe('pressed-add-list', addList);
+        PubSub.subscribe('list')
     
         return {getLists}
     }
 )();
 
-console.log(listManager.getLists())
-const newTodo = Todo('juan', 'as;dflajsd;fl', 12, 'top', 'nada', 'default');
+const newTodo = new Todo('juan', 'as;dflajsd;fl', 12, 'top', 'nada', 'default');
 
 export {todoManager, listManager}
