@@ -1,5 +1,3 @@
-import './style.css';
-import './webpage.js'
 
 
 //todo factory function
@@ -16,7 +14,7 @@ const List = function(name){
         return Object.keys(content).length;
     };
 
-    return {name, content, lenght}
+    return {name, content, length}
 }
 
 const todoManager = (
@@ -35,8 +33,9 @@ const listManager = (
     function () {
         let lists = {};
 
-        function addList(data){
-
+        function addList(msg, listName){
+            lists[listName] = List(listName);
+            console.log(lists)
         }
 
         const getLists = function(){
@@ -51,3 +50,5 @@ const listManager = (
 
 console.log(listManager.getLists())
 const newTodo = Todo('juan', 'as;dflajsd;fl', 12, 'top', 'nada', 'default');
+
+export {todoManager, listManager}

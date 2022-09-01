@@ -40,6 +40,33 @@ main {
     width: auto;
 }
 
+#lists-area > div:first-child{
+    display: flex;
+    gap: 5px;
+}
+
+#list-input {
+    padding: 10px;
+    display: grid;
+    gap: 5px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+#list-input input{
+    grid-column: 1 / -1;
+}
+
+#list-input button:first-of-type{
+    grid-row: 2 / -1;
+    grid-column: 1 / 2;
+}
+
+#list-input button:nth-of-type(2){
+    grid-row:  2 / -1;
+    grid-column: 2 / -1;
+}
+
 
 #popup {
     background-color: red;
@@ -52,6 +79,7 @@ main {
 
 #popup.invisible {
     opacity: 0;
+    left: -50%;
 }
 
 #popup > form {
