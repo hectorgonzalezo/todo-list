@@ -1,5 +1,17 @@
 @import './reset.css';
 
+:root {
+    --color-background: #f0f9ff;
+    --color-light: #e0f2fe;
+    --color-medium-light: #7dd3fc;
+    --color-medium-dark: #38bdf8;
+    --color-dark: #0c4a6e;
+}
+
+/* *{
+    outline: red dashed;
+} */
+
 body{
     height: 100vh;
     display: flex;
@@ -8,34 +20,79 @@ body{
 }
 
 header {
-    background-color: red;
-    height: 8rem;
+    background-color: var(--color-dark);
+    height: 6rem;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0px 20px 0px 20px;
 }
 
-header img {
+header > h1{
+    font-size: 3rem;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px var(--color-medium-dark);
+    letter-spacing: 0.5rem;
+}
+
+header img:first-of-type {
     width:  24px;
 }
 
 main {
-    background-color: blue;
+    background-color: var(--color-background);
     height: 100%;
     display: flex;
     position: relative;
 }
 
+#todo-area{
+    --gap-size: 20px;
+    width: 100%;
+    display: grid;
+    gap: var(--gap-size);
+    padding: var(--gap-size);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 20fr;
+    justify-items: center;
+    align-items: center;
+}
+
+#todo-area > h1 {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+}
+
+#todos-list-view{
+    grid-column: 1 / 2;
+    grid-row: 2 / -1;
+}
+
+#todo-detail-view{
+    grid-column: 2 / -1;
+    grid-row: 2 / -1;
+}
+
+#todo-area > div{
+    background-color: var(--color-medium-light);
+    padding: 20px;
+    border-radius: 1rem;
+    box-shadow: 4px 4px 8px 2px grey;
+    height: 80%;
+    width: 80%;
+}
+
 #sidebar {
-    background-color: pink;
+    background-color: var(--color-medium-light);
     width: auto;
     padding: 30px;
-    position: absolute;
-    height: 100%;
 }
 
 #sidebar.hidden {
     width: 0px;
     left: -200px;
+    position: absolute;
     animation: slideOut 1s forwards;
     width: auto;
 }
@@ -128,7 +185,6 @@ main {
 }
 
 footer {
-    position: relative;
     margin-top: auto;
     display: flex;
     align-items: center;
