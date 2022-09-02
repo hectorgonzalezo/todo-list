@@ -1,5 +1,5 @@
-
-import _ from 'lodash'
+import _ from 'lodash';
+import { formate, compareAsc} from 'date-fns'
 //todo class
 class Todo {
     constructor(name, notes, dueDate, priority, list =''){
@@ -55,10 +55,10 @@ const todoManager = (
     function () {
         let todos = {};
 
-        function addTodo(data){
-        }
+        function addTodo(msg, data){
 
-        PubSub.subscribe('pressed-add-button', addTodo)
+            return newTodo(data);
+        }
     }
 )();
 
@@ -82,10 +82,16 @@ const listManager = (
         }
 
         const _publishLists = function(){
-
         }
 
-       
+        const _addToList = function(msg, todo){
+            const todoListProp = todo['list'];
+            //if todo.list exists, add it there
+
+            if (lists.hasOwnProperty(todoListProp)){
+                lists[todoListProp].add(todo)
+            }
+        }
 
         addList('', 'web');
         const _dummyObj = new Todo(
@@ -110,9 +116,9 @@ const listManager = (
         lists['web'].add(_anotherDummyObj);
 
         PubSub.subscribe('pressed-add-list', addList);
-        PubSub.subscribe('list')
+        PubSub.subscribe('object-added-to-inbox', _addToList);
     
-        return {getAllLists, getList}
+        return {addList, getAllLists, getList}
     }
 )();
 
@@ -138,11 +144,17 @@ const inboxManager = (
         _inbox.add(_dummyObj)
         _inbox.add(_anotherDummyObj)
 
-        const getList = function(){
+        const getInbox = function(){
             return _inbox
         }
 
-    return {getList}
+        const addTodo = function(data) {
+            const newTodo = Object.assign(new Todo, data);
+            _inbox.add(newTodo);
+            PubSub.publish('object-added-to-inbox', newTodo)
+        }
+
+    return {getInbox, addTodo}
     }
 )();
 

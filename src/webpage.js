@@ -1,5 +1,5 @@
 import PubSub from "pubsub-js";
-import { todoManager, listManager, inboxManager} from "./todos.js";
+import { listManager, inboxManager} from "./todos.js";
 import deleteIconUrl from './assets/delete-icon.png';
 
 const webpage = (
@@ -28,7 +28,7 @@ const headerController = (
             PubSub.publish('pressed-menu-button')
         });
 
-        _buttonAdd.addEventListener('click', () => {
+        _buttonAdd.addEventListener('click', () => {``
             PubSub.publish('pressed-add-button')
         });
     }        
@@ -181,7 +181,7 @@ const mainTodoListController = (
             _cleanTodoContainer();
             let list 
             if (listName == 'Inbox'){
-                list = inboxManager.getList()
+                list = inboxManager.getInbox()
             } else {
                 list = listManager.getList(listName);
             }
@@ -231,7 +231,10 @@ const mainTodoListController = (
             
         }
         PubSub.subscribe('webpage-loaded', _renderList);
-        PubSub.subscribe('sidebar-item-selected', _renderList)
+        PubSub.subscribe('sidebar-item-selected', _renderList);
+        PubSub.subscribe('object-added-to-inbox', () =>{
+            _renderList()
+        })
     }
 
 )();
@@ -311,7 +314,39 @@ const mainDetailsController = (
     }
 )();
 
-const popupController = (
+const popupFormController = (
+    function(){
+        const _form = document.querySelector('#popup > form')
+
+        const _clearForm = function(){
+            _form.reset();
+        }
+
+        const _createTodo = function(){
+                //extract data from form and make it a FormData
+                const formData = new FormData(_form);
+                console.log(formData.entries())
+                const todoData = Object.fromEntries(formData.entries());
+                //create book from data
+
+                // const correctedBook = todoData.correctData();
+
+                //add to inbox
+                inboxManager.addTodo(todoData);
+                const inbox = inboxManager.getInbox()
+                console.log(inbox.getContent());
+
+                _clearForm
+        }
+
+        PubSub.subscribe('pressed-create-button', ()=>{
+            _createTodo();
+            _clearForm();
+        })
+    }
+)();
+
+const popupDisplay = (
     function() {
         const _popup = document.querySelector('#popup');
         const _listsSelector = document.querySelector('#add-todo-list');
@@ -348,13 +383,12 @@ const popupController = (
 
         }
 
-        //this function is ran when pressing the "create" button
-        const _createTodo = function () {
-            button.preventDefault();
-            _toggle();
-        }
 
-        _buttonCreate.addEventListener('click', _createTodo);
+        _buttonCreate.addEventListener('click', (e) => {
+            e.preventDefault();
+            _toggle();
+            PubSub.publish('pressed-create-button');
+        });
         _buttonClose.addEventListener('click', _toggle)
 
         PubSub.subscribe('pressed-add-button', _toggle);
