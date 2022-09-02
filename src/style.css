@@ -6,12 +6,33 @@
     --color-medium-light: #7dd3fc;
     --color-medium-dark: #38bdf8;
     --color-dark: #0c4a6e;
-    --color-complementary-light: rgb(255, 242, 0);
+    --color-complementary-light: rgb(228, 148, 148);
+    --color-complementary-dark: rgb(132, 40, 39);
 }
 
 /* *{
     outline: red dashed;
 } */
+
+button {
+    background-color: var(--color-background);
+    border-radius: 0.8rem;
+    box-shadow: 2px 2px 4px var(--color-dark);
+    padding: 5px;
+}
+
+button:hover {
+    background-color: var(--color-complementary-light);
+    color: var(--color-text-book);
+    cursor: pointer;
+}
+
+button:active {
+    position: relative;
+    left: 2px;
+    top: 1px;
+    box-shadow: 1px 1px 2px black;
+}
 
 #visible-area{
     height: 100vh;
@@ -128,7 +149,13 @@ body .sidebar-list,
     color: var(--color-background);
 }
 
-
+#list-title {
+    font-size: 2rem;
+    color: var(--color-dark);
+    font-weight: bold;
+    text-shadow: 1px 1px 2px var(--color-medium-dark);
+    letter-spacing: 0.5rem;
+}
 
 #list-input {
     padding: 10px;
