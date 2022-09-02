@@ -85,15 +85,16 @@ const listManager = (
         }
 
         const _addToList = function(msg, todo){
-            const todoListProp = todo['list'];
-            //if todo.list exists, add it there
+            const todoListName = todo['list'];
 
-            if (lists.hasOwnProperty(todoListProp)){
-                lists[todoListProp].add(todo)
+            //if todo list exists, add it there
+            if (lists.hasOwnProperty(todoListName)){
+                lists[todoListName].add(todo)
             }
         }
 
         addList('', 'web');
+
         const _dummyObj = new Todo(
             'Terminar esta madre!',
             'Va a tardar mas',
@@ -151,7 +152,8 @@ const inboxManager = (
         const addTodo = function(data) {
             const newTodo = Object.assign(new Todo, data);
             _inbox.add(newTodo);
-            PubSub.publish('object-added-to-inbox', newTodo)
+            console.log(_inbox.getContent())
+            PubSub.publish('object-added-to-inbox', newTodo);
         }
 
     return {getInbox, addTodo}

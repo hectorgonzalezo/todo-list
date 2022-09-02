@@ -178,6 +178,7 @@ body .sidebar-list,
 #details-container{
     grid-column: 2 / 3;
     grid-row: 2 / -1;
+
 }
 
 #todo-area button{
@@ -239,14 +240,18 @@ body .sidebar-list,
 }
 
 #details-display{
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 3fr;
     height: 100%;
-    justify-content: space-between;
+}
+#details-display > h1 {
+    grid-column: 1 / -1;
 }
 
-#details-container{
-
+#detail-name {
+    text-align: center;
+    font-size: 1.5rem;
 }
 
 #details-container > h2 {
