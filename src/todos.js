@@ -45,7 +45,7 @@ const List = function(name){
 
 //Inbox inherits from List
 //empty name
-const Inbox = function (name=''){
+const Inbox = function (){
     const {length, getName, getContent, add} = List('Inbox');
 
     return {length, getName, getContent, add}
@@ -64,11 +64,13 @@ const todoManager = (
 
 const listManager = (
     function () {
-        let lists = {'web':'web', 'asdf':'asdfa'};
+        let lists = {
+            'web':new List('juan'), 
+        'asdf':new List('otra')
+    };
 
         const addList = function (msg, listName){
             lists[listName] = List(listName);
-            console.log(lists)
         }
 
         const getAllLists = function(){
@@ -113,7 +115,6 @@ const inboxManager = (
         _inbox.add(_anotherDummyObj)
 
         const getList = function(){
-            console.log(_inbox)
             return _inbox
         }
 

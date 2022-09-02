@@ -26,11 +26,12 @@ const headerController = (
     }        
 )();
 
-const sidebarController = (
+const sideBarController = (
     function () {
         const _sideBar = document.querySelector('#sidebar');
         const _listsArea = document.querySelector('#lists-area');
-        const _buttonAddList = document.querySelector('#lists-area button')
+        const _buttonAddList = document.querySelector('#lists-area button');
+        const _commonItems = document.querySelectorAll('#common-items-area li');
         
         //hide or show sidebar
         const _toggle = function () {
@@ -58,8 +59,7 @@ const sidebarController = (
 
             field.classList.add('selected')
             PubSub.publish('list-clicked', name);
-            //remove deletes from the rest
-            
+
             //add delete icon to list field
             const deleteIcon = document.createElement('img');
             deleteIcon.src = deleteIconUrl;
@@ -83,6 +83,7 @@ const sidebarController = (
              //when clicking on listField
              listField.addEventListener('click', ()=> {
                 _expandList(name, listField);
+                PubSub.publish('sidebar-item-selected', name)
              })
         }
 
@@ -137,7 +138,17 @@ const sidebarController = (
         }
 
         //when pressing button to add lists
-        _buttonAddList.addEventListener('click', _showListAdder)
+        _buttonAddList.addEventListener('click', _showListAdder);
+
+        //add functionality to inbox, today and this week areas
+        _commonItems.forEach((item) => {
+            item.addEventListener('click', () => {
+                _removeTrashBins();
+                _removeSelectedClasses(); 
+                item.classList.add('selected');
+                PubSub.publish('sidebar-item-selected', item.innerText)
+            }) 
+        })
 
         PubSub.subscribe('pressed-menu-button', _toggle);
         PubSub.subscribe('webpage-loaded',  _populateInitialLists);
@@ -149,9 +160,25 @@ const mainTodoListController = (
         const _titleList = document.querySelector('#list-title');
         const _todoContainer = document.querySelector('#todos-container');
         const _todos = _todoContainer.children;
+        
+        const _cleanTodoContainer = function(){
+            //remove everything inside containter
+            while(_todoContainer.firstChild){
+                _todoContainer.removeChild(div.firstChild);
+            }
+        }
 
         //update left side div with items from list
-        const _renderList = function(msg, list=inboxManager.getList()) {
+        const _renderList = function(msg, listName='Inbox') {
+            _cleanTodoContainer
+            console.log(listName)
+            let list 
+            if (listName == 'Inbox'){
+                list = inboxManager.getList()
+            } else {
+                list = listManager.getList(listName);
+            }
+            
             //update title
             _titleList.innerText = _.capitalize(list.getName());
             const listContent = list.getContent();
@@ -196,6 +223,7 @@ const mainTodoListController = (
             
         }
         PubSub.subscribe('webpage-loaded', _renderList);
+        PubSub.subscribe('sidebar-item-selected', _renderList)
     }
 
 )();
@@ -208,7 +236,41 @@ const mainDetailsController = (
         const _detailList = document.querySelector('#detail-list');
         const _detailNotes = document.querySelector('#detail-notes');
 
+
+        const _addDetailsContainer = function(){
+            const container = document.createElement('div');
+            container.classList.add('container');
+            container.setAttribute('id', 'details-container');
+
+            const title = document.createElement('h2');
+            title.innerText = 'Todo details';
+            const detailsDisplay = document.createElement('div');
+            container.append(title, detailsDisplay);
+
+            const detailName = document.createElement('h3');
+            detailName.setAttribute('id', 'detail-name');
+            detailName.innerText = 'Name';
+            
+            const detailDate = document.createElement('p');
+            detailDate.setAttribute('id', 'detail-date');
+            detailDate.innerText = 'Date';
+            
+            const detailPriority = document.createElement('p');
+            detailPriority.setAttribute('id', 'detail-priority');
+            detailPriority.innerText = 'Priority';
+            
+            const detailList = document.createElement('p');
+            detailList.setAttribute('id', 'detail-date');
+            detailList.innerText = 'List';
+            
+            const detailNotes = document.createElement('p');
+            detailNotes.setAttribute('readonly','')
+            detailNotes.setAttribute('id', 'detail-notes');
+            detailNotes.innerText = 'Notes';
+        }
+
         const _renderDetails = function(msg, todo){
+            _addDetailsContainer();
             _detailName.innerText = todo['name'];
             _detailPriority.innerText = todo['priority'];
             _detailList.innerText = todo['list'];
@@ -218,6 +280,7 @@ const mainDetailsController = (
         PubSub.subscribe('todo-selected', _renderDetails)
     }
 )();
+
 const popupController = (
     function() {
         const _popup = document.querySelector('#popup');
