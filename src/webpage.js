@@ -1,5 +1,6 @@
 import PubSub from "pubsub-js";
 import { todoManager, listManager, inboxManager} from "./todos.js";
+import deleteIconUrl from './assets/delete-icon.png';
 
 const webpage = (
     function () {
@@ -36,17 +37,53 @@ const sidebarController = (
             _sideBar.classList.toggle('hidden');
         };
 
+        const _removeTrashBins = function(){
+            const trashBin = document.querySelector('.trash-bin');
+            if (trashBin !=null){//if there's one
+                trashBin.remove();
+            }
+        }
+
+        const _removeSelectedClasses = function(){
+            const selectedField = document.querySelector('.selected');
+            if (selectedField !=null){//if there's one
+                selectedField.classList.remove('selected')
+            } 
+        }
+
+
+        const _expandList = function (name, field) {
+            _removeTrashBins();
+            _removeSelectedClasses();
+
+            field.classList.add('selected')
+            PubSub.publish('list-clicked', name);
+            //remove deletes from the rest
+            
+            //add delete icon to list field
+            const deleteIcon = document.createElement('img');
+            deleteIcon.src = deleteIconUrl;
+            deleteIcon.classList.add('trash-bin');//so that it can be shaken
+            field.append(deleteIcon)
+        }
+
 
         const _addList = function(name) {
              //create List field, add name and id
              const listField = document.createElement('div');
              listField.classList.add('list-field');
-             listField.setAttribute('id', name)
+             listField.setAttribute('id', name);
+             listField.classList.add('sidebar-list');
              const listTitle = document.createElement('h2');
-             listTitle.innerText = name;
-             listField.append(listTitle)
+             listTitle.innerText = _.capitalize(name);
+             listField.append(listTitle);
 
-             _listsArea.append(listField)
+             _listsArea.append(listField);
+
+             //when clicking on listField
+             listField.addEventListener('click', ()=> {
+                _expandList(name, listField);
+             })
         }
 
 
@@ -116,7 +153,7 @@ const mainTodoListController = (
         //update left side div with items from list
         const _renderList = function(msg, list=inboxManager.getList()) {
             //update title
-            _titleList.innerText = list.getName();
+            _titleList.innerText = _.capitalize(list.getName());
             const listContent = list.getContent();
 
             //append all content to div

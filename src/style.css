@@ -52,21 +52,77 @@ main {
 #sidebar {
     background-color: var(--color-medium-light);
     width: auto;
-    padding: 30px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 200px;
+    gap: 50px;
+    padding-top: 20px;
 }
 
+#sidebar > *{
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 20px;
+    min-width: 80px;
+    width: auto;
+}
+
+
 #sidebar.hidden {
-    width: 0px;
+    /* width: 0px; */
     left: -200px;
     position: absolute;
     animation: slideOut 1s forwards;
     width: auto;
 }
 
-#lists-area > div:first-child{
+#lists-area > div{
     display: flex;
     gap: 5px;
+    justify-content: space-between;
+    align-items: center;
 }
+
+#lists-area > div:first-of-type{
+    padding: 0px 5px 0px 5px;
+}
+
+#lists-area button{
+    justify-self: flex-end;
+}
+
+.trash-bin {
+    height: 18px;
+    width: 18px;
+    align-self: flex-end;
+}
+
+.trash-bin:hover {
+    cursor: pointer;
+    animation: shake 0.5s;
+}
+
+.sidebar-list.selected{
+    color: white;
+    background-color: var(--color-dark);
+}
+
+body .sidebar-list,
+#sidebar li{
+    padding: 10px 3px 10px 20px;
+    background-color: var(--color-medium-dark);
+}
+
+.sidebar-list:hover,
+#sidebar li:hover{
+    background-color: var(--color-dark);
+    color: var(--color-background);
+}
+
+
 
 #list-input {
     padding: 10px;
@@ -132,12 +188,8 @@ main {
     overflow: scroll;
 }
 
-#details-display{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: space-evenly;
-}
+
+
 
 .todo {
     display: grid;
@@ -174,7 +226,23 @@ main {
     height: 24px;
 }
 
+#details-display{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
 
+#details-container{
+
+}
+
+#details-container > h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    background-color: var(--color-medium-dark);
+    color: white;
+}
 
 
 #popup {
@@ -276,4 +344,18 @@ footer {
     to {
       left: -200px;
     }
+  }
+
+  @keyframes shake {
+    0% { transform: translate(1px) rotate(0deg); }
+    10% { transform: translate(-1px) rotate(-1deg); }
+    20% { transform: translate(-3px) rotate(1deg); }
+    30% { transform: translate(3px) rotate(0deg); }
+    40% { transform: translate(1px) rotate(1deg); }
+    50% { transform: translate(-1px) rotate(-1deg); }
+    60% { transform: translate(-3px) rotate(0deg); }
+    70% { transform: translate(3px) rotate(-1deg); }
+    80% { transform: translate(-1px) rotate(1deg); }
+    90% { transform: translate(1px) rotate(0deg); }
+    100% { transform: translate(1px) rotate(-1deg); }
   }

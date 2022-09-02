@@ -1,3 +1,91 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><title>Todo List</title><link rel="icon" href="icon-todo.png"><script defer="defer" src="runtime.js"></script><script defer="defer" src="main.js"></script></head><body><header><button type="button" id="button-open-menu"><img src="e70e6a01c8cd5304d660.png" alt=""></button><h1>Todo List</h1><button type="button" id="button-add-todo">+</button></header><main><div id="sidebar"><ul><li>Inbox</li><li>Today</li><li>This week</li></ul><div id="lists-area"><div><h2>Lists</h2><button type="button">+</button></div></div></div><div id="todo-area"><h1 id="list-title">Inbox</h1><div id="todos-container" class="container"></div><div id="details-container" class="container"><h2>Todo details</h2><div id="details-display"><h3 id="detail-name">Name</h3><p id="detail-date">due date</p><p id="detail-priority">priority</p><p id="detail-list">list</p><textarea id="detail-notes" readonly="readonly">
-                    </textarea></div></div></div></main><footer><h2>Héctor González Orozco</h2><a href="https://github.com/hectorgonzalezo/todo-list"><img alt="github logo" id="github-logo" src="7615be16eed41f806def.png"></a></footer><div id="popup" class="invisible"><h1>Add new task</h1><form action="" id="form-player-names"><input id="add-todo-name" name="name" placeholder="I want to..." required><div id="add-todo-notes"><label for="notes">Notes:</label> <textarea id="notes" name="notes" placeholder="notes" rows="10">
-                </textarea></div><div id="add-todo-date"><label for="date">Due date</label> <input type="date" id="date" name="date" required></div><select name="priority" id="add-todo-priority"><option selected="selected" hidden>Priority</option><option value="human">Priority 1</option><option value="easy">Priority 2</option><option value="hard">Priority 3</option><option value="hard">Priority 4</option></select> <select name="list" id="add-todo-list"><option selected="selected" hidden>Add to list</option></select> <button id="popup-button">Create</button></form></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Todo List</title>
+<link rel="icon" href="icon-todo.png"><script defer src="runtime.js"></script><script defer src="main.js"></script></head>
+<body>
+    <header>
+        <button type="button" id="button-open-menu">
+            <img src=e70e6a01c8cd5304d660.png alt="">
+        </button>
+        <h1>Todo List</h1>
+        <button type="button" id="button-add-todo">+</button>
+    </header>
+	<main>
+        <div id="sidebar">
+            <ul>
+                <li>Inbox</li>
+                <li>Today</li>
+                <li>This week</li>
+            </ul>
+            <div id="lists-area">
+                <div>
+                    <h2>Lists</h2>
+                    <button type="button">+</button>
+                </div>
+            </div>
+        </div>
+        <div id="todo-area">
+
+            <h1 id="list-title">Inbox</h1>
+
+            <div id="todos-container" class="container">
+
+            </div>
+
+            <div id="details-container" class="container">
+                <h2>Todo details</h2>
+                <div id="details-display">
+                    <h3 id="detail-name">Name</h3>
+                    <p id="detail-date">due date</p>
+                    <p id="detail-priority">priority</p>
+                    <p id="detail-list">list</p>
+                    <textarea id='detail-notes' readonly>
+                    </textarea>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <footer>
+        <h2>Héctor González Orozco</h2>
+        <a href='https://github.com/hectorgonzalezo/todo-list'>
+            <img alt="github logo" id="github-logo" src=7615be16eed41f806def.png >
+        </a>
+    </footer>
+    <div id="popup" class="invisible">
+        <h1>Add new task</h1>
+        <form action="" id="form-player-names" >
+
+            <input type="text" id='add-todo-name' name='name' placeholder='I want to...' required>
+
+            <div id="add-todo-notes">
+                <label for="notes">Notes:</label>
+                <textarea id='notes' name='notes' placeholder='notes' rows="10">
+                </textarea>
+            </div>
+
+            <div id="add-todo-date">
+                <label for="date">Due date</label>
+                <input type="date" id='date' name='date' required>
+            </div>
+
+
+            <select name="priority" id="add-todo-priority">
+                    <option selected hidden>Priority</option>
+                    <option value="human">Priority 1</option>
+                    <option value="easy">Priority 2</option>
+                    <option value="hard">Priority 3</option>
+                    <option value="hard">Priority 4</option>
+            </select>
+
+            <!-- create list dymanically -->
+            <select name="list" id="add-todo-list">
+                <option selected hidden>Add to list</option>
+        </select>
+            <button id="popup-button">Create</button>
+        </form>
+    </div>
+</body>
+</html>

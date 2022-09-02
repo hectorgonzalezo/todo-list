@@ -1,5 +1,5 @@
 
-
+import _ from 'lodash'
 //todo class
 class Todo {
     constructor(name, notes, dueDate, priority, list =''){
@@ -41,6 +41,14 @@ const List = function(name){
     }
 
     return {getName, getContent, length, add}
+}
+
+//Inbox inherits from List
+//empty name
+const Inbox = function (name=''){
+    const {length, getName, getContent, add} = List('Inbox');
+
+    return {length, getName, getContent, add}
 }
 
 const todoManager = (
@@ -99,12 +107,13 @@ const inboxManager = (
             'low'
         )
 
-        const _inbox = new List('inbox');
+        const _inbox = new Inbox();
 
         _inbox.add(_dummyObj)
         _inbox.add(_anotherDummyObj)
 
         const getList = function(){
+            console.log(_inbox)
             return _inbox
         }
 
