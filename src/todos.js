@@ -6,6 +6,7 @@ class Todo {
         this.notes = notes;
         this.date = date;
         this.date = date;
+
         this.priority = priority;
         this.list = list;
     }
@@ -40,15 +41,21 @@ const List = function(name){
         _content.push(todo);
     }
 
-    return {getName, getContent, length, add}
+    const remove = function(name){
+        _content = _content.filter((todo) =>{
+            return todo['name'] != name
+        } )
+    }
+
+    return {getName, getContent, length, add, remove}
 }
 
 //Inbox inherits from List
 //empty name
 const Inbox = function (){
-    const {length, getName, getContent, add} = List('Inbox');
+    const {length, getName, getContent, add, remove} = List('Inbox');
 
-    return {length, getName, getContent, add}
+    return {length, getName, getContent, add, remove}
 }
 
 const todoManager = (
@@ -93,6 +100,14 @@ const listManager = (
             }
         }
 
+        const _removeFromList = function (msg, todoName) {
+            for (const list in lists) {
+                if (list.hasOwnProperty(todoName)) {
+                    delete list.todoName
+                }
+            }
+        }
+
         addList('', 'web');
 
         const _dummyObj = new Todo(
@@ -118,6 +133,7 @@ const listManager = (
 
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('object-added-to-inbox', _addToList);
+        PubSub.subscribe('object-removed-from-inbox', _removeFromList);
     
         return {addList, getAllLists, getList}
     }
@@ -152,11 +168,15 @@ const inboxManager = (
         const addTodo = function(data) {
             const newTodo = Object.assign(new Todo, data);
             _inbox.add(newTodo);
-            console.log(_inbox.getContent())
             PubSub.publish('object-added-to-inbox', newTodo);
         }
 
-    return {getInbox, addTodo}
+        const deleteTodo = function(todoName){
+            _inbox.remove(todoName)
+            PubSub.publish('object-removed-from-imbox', todoName)
+        }
+
+    return {getInbox, addTodo, deleteTodo}
     }
 )();
 

@@ -2,6 +2,7 @@ import PubSub from "pubsub-js";
 import { format, compareAsc, differenceInDays} from 'date-fns';
 import { listManager, inboxManager } from "./todos.js";
 import deleteIconUrl from './assets/delete-icon.png';
+import deleteIconBlackUrl from './assets/delete-icon-black.png';
 
 const webpage = (
     function () {
@@ -231,11 +232,21 @@ const mainTodoListController = (
             todoWrapper.classList.add('selected');
 
         }
+
+        const _removeTodo = function (){//when pressing delete button on details
+            const selectedTodo = document.querySelector('#todos-container .selected')
+            selectedTodo.remove();
+
+            _selectTodo(_todoContainer.firstChild)
+            _renderList();
+        }
+
         PubSub.subscribe('webpage-loaded', _renderList);
         PubSub.subscribe('sidebar-item-selected', _renderList);
         PubSub.subscribe('object-added-to-inbox', () => {
             _renderList()
         })
+        PubSub.subscribe('pressed-delete-button', _removeTodo)
     }
 
 )();
@@ -300,7 +311,7 @@ const mainDetailsController = (
             }
         }
 
-        const _addDetailsContainer = function () {
+        const _addDetailsContainer = function (todo) {
             //removes previous details container
             _removeDetailsContainer();
             //creates the container and displays it in DOM
@@ -327,7 +338,6 @@ const mainDetailsController = (
             _detailPriority.appendTo(detailsDisplay);
 
             _detailList = new DetailSelector('list');
-            console.log(_detailList.getElement())
             
             _detailList.appendTo(detailsDisplay);
 
@@ -335,13 +345,46 @@ const mainDetailsController = (
             _detailNotes.appendTo(detailsDisplay);
             _detailNotes.getElement().setAttribute('readonly','')
 
+            _renderButtons(container, todo['name'])
+
             _todoArea.append(container)
         }
 
+        const _renderButtons = function (parent, todoName) {
+            //add div with buttons at the bottom
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.setAttribute('id', 'details-buttons-area')
+            const buttonEdit = document.createElement('button');
+            buttonEdit.setAttribute('type', 'button');
+            buttonEdit.innerText = 'Edit todo'
+            const imgDelete = document.createElement('img');
+            imgDelete.src = deleteIconBlackUrl;
+            imgDelete.classList.add('trash-bin')
+            imgDelete.setAttribute('data', todoName)
+            buttonWrapper.append(buttonEdit, imgDelete);
+            parent.append(buttonWrapper);
+
+            buttonEdit.addEventListener('click', _editTodo.bind(buttonEdit));
+            imgDelete.addEventListener('click', () => {
+                _deleteTodo(imgDelete);
+            });
+        }
+
+        const _editTodo = function (){
+
+        };
+
+        const _deleteTodo = function(button) {
+            const todoName = button.getAttribute('data') 
+            inboxManager.deleteTodo(todoName);
+            _removeDetailsContainer();
+            //remove from inbox
+            PubSub.publish('pressed-delete-button')
+        };
+
         const _renderDetails = function (msg, todo) {
             const dueDate = new Date(todo['date']);
-            console.log(dueDate)
-            _addDetailsContainer();
+            _addDetailsContainer(todo);
             _detailName.innerText = todo['name'];
             //date Value
             _detailDate.changeValue(
@@ -370,7 +413,6 @@ const popupFormController = (
             //extract data from form and make it a FormData
             const formData = new FormData(_form);
             const todoData = Object.fromEntries(formData.entries());
-            console.log(todoData)
 
             //add to inbox
             inboxManager.addTodo(todoData);

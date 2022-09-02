@@ -62,19 +62,21 @@
                 <input type="date" id='date' name='date' required>
             </div>
 
+            <div>
+                <label for ='priority'>Priority</label>
+                <select name="priority" id="add-todo-priority">
+                        <option value="high">High</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="low">Low</option>
+                </select>
+            </div>
 
-            <select name="priority" id="add-todo-priority">
-                    <option selected hidden>Priority</option>
-                    <option value="high">High</option>
-                    <option value="normal">Normal</option>
-                    <option value="low">Low</option>
-
-            </select>
-
-            <!-- create list dymanically -->
-            <select name="list" id="add-todo-list">
-                <option selected hidden>Add to list</option>
-        </select>
+            <div>
+                <label for="list"> List</label>
+                <select name="list" id="add-todo-list">
+                    <option selected hidden></option>
+                        </select>
+            </div>
             <button id="popup-button">Create</button>
         </form>
     </div>
