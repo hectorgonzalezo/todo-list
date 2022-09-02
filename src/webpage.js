@@ -1,4 +1,5 @@
 import PubSub from "pubsub-js";
+import { format, compareAsc, differenceInDays} from 'date-fns';
 import { listManager, inboxManager } from "./todos.js";
 import deleteIconUrl from './assets/delete-icon.png';
 
@@ -29,7 +30,6 @@ const headerController = (
         });
 
         _buttonAdd.addEventListener('click', () => {
-            ``
             PubSub.publish('pressed-add-button')
         });
     }
@@ -339,9 +339,14 @@ const mainDetailsController = (
         }
 
         const _renderDetails = function (msg, todo) {
+            const dueDate = new Date(todo['date']);
+            console.log(dueDate)
             _addDetailsContainer();
             _detailName.innerText = todo['name'];
-            _detailDate.changeValue(todo['date']);
+            //date Value
+            _detailDate.changeValue(
+                `${format((dueDate), "dd MMMM, yyyy")}
+                ${differenceInDays(dueDate, Date.now())} days left.`);
             _detailPriority.changeValue(todo['priority']);
             _detailList.changeValue(todo['list']);
             _detailNotes.changeValue(todo['notes']);
@@ -365,6 +370,7 @@ const popupFormController = (
             //extract data from form and make it a FormData
             const formData = new FormData(_form);
             const todoData = Object.fromEntries(formData.entries());
+            console.log(todoData)
 
             //add to inbox
             inboxManager.addTodo(todoData);

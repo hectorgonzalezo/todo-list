@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import { formate, compareAsc} from 'date-fns'
 //todo class
 class Todo {
-    constructor(name, notes, dueDate, priority, list =''){
+    constructor(name, notes, date, priority, list =''){
         this.name = name;
         this.notes = notes;
-        this.dueDate = dueDate;
+        this.date = date;
+        this.date = date;
         this.priority = priority;
         this.list = list;
     }
@@ -128,7 +128,7 @@ const inboxManager = (
         const _dummyObj = new Todo(
             'Finish Project',
             'This should take no more than 5 days.',
-            12,
+            '2012/12/21',
             'high',
             'asfas'
         );
