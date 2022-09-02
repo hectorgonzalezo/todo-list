@@ -4,10 +4,18 @@ import deleteIconUrl from './assets/delete-icon.png';
 
 const webpage = (
     function () {
+        const _visibleArea = document.querySelector('#visible-area');
+
         //when loaded, update lists on sidebar
         window.addEventListener('load', () => {
             PubSub.publish('webpage-loaded');
         })
+
+        const _toggleVisibility = function(){
+            _visibleArea.classList.toggle('invisible');
+        }
+
+        PubSub.subscribe('popup-toggled', _toggleVisibility)
     }
 )();
 
@@ -164,14 +172,13 @@ const mainTodoListController = (
         const _cleanTodoContainer = function(){
             //remove everything inside containter
             while(_todoContainer.firstChild){
-                _todoContainer.removeChild(div.firstChild);
+                _todoContainer.removeChild(_todoContainer.firstChild);
             }
         }
 
         //update left side div with items from list
         const _renderList = function(msg, listName='Inbox') {
-            _cleanTodoContainer
-            console.log(listName)
+            _cleanTodoContainer();
             let list 
             if (listName == 'Inbox'){
                 list = inboxManager.getList()
@@ -187,10 +194,11 @@ const mainTodoListController = (
             for (const todo of listContent){
                 _renderTodo(todo)
             }
-
-            //select first element
-            _todoContainer.firstElementChild.classList.add('selected');
-            PubSub.publish('todo-selected', listContent[0])
+            //select first element if list isn't empty
+            if (list.getContent().length > 0) {
+                _todoContainer.firstElementChild.classList.add('selected');
+                PubSub.publish('todo-selected', listContent[0])
+            }
         }
 
         const _renderTodo = function(todo){
@@ -230,14 +238,24 @@ const mainTodoListController = (
 
 const mainDetailsController = (
     function(){
-        const _detailContainer = document.querySelector('#details-container');
-        const _detailName = document.querySelector('#detail-name');
-        const _detailPriority = document.querySelector('#detail-priority');
-        const _detailList = document.querySelector('#detail-list');
-        const _detailNotes = document.querySelector('#detail-notes');
+        const _todoArea = document.querySelector('#todo-area')
+        let _detailName;
+        let _detailDate;
+        let _detailPriority;
+        let _detailList;
+        let _detailNotes;
 
+        const _removeDetailsContainer = function() {
+            const previousDetailsContainer = document.querySelector('#details-container')
+            if(previousDetailsContainer){
+                previousDetailsContainer.remove()
+            }
+        }
 
         const _addDetailsContainer = function(){
+            //removes previous details container
+            _removeDetailsContainer();
+            //creates the container and displays it in DOM
             const container = document.createElement('div');
             container.classList.add('container');
             container.setAttribute('id', 'details-container');
@@ -245,28 +263,38 @@ const mainDetailsController = (
             const title = document.createElement('h2');
             title.innerText = 'Todo details';
             const detailsDisplay = document.createElement('div');
+            detailsDisplay.setAttribute('id', 'details-display')
             container.append(title, detailsDisplay);
 
-            const detailName = document.createElement('h3');
-            detailName.setAttribute('id', 'detail-name');
-            detailName.innerText = 'Name';
+            _detailName = document.createElement('h3');
+            _detailName.setAttribute('id', 'detail-name');
+            _detailName.innerText = 'Name';
             
-            const detailDate = document.createElement('p');
-            detailDate.setAttribute('id', 'detail-date');
-            detailDate.innerText = 'Date';
+            _detailDate = document.createElement('p');
+            _detailDate.setAttribute('id', 'detail-date');
+            _detailDate.innerText = 'Date';
             
-            const detailPriority = document.createElement('p');
-            detailPriority.setAttribute('id', 'detail-priority');
-            detailPriority.innerText = 'Priority';
+            _detailPriority = document.createElement('p');
+            _detailPriority.setAttribute('id', 'detail-priority');
+            _detailPriority.innerText = 'Priority';
             
-            const detailList = document.createElement('p');
-            detailList.setAttribute('id', 'detail-date');
-            detailList.innerText = 'List';
+            _detailList = document.createElement('p');
+            _detailList.setAttribute('id', 'detail-date');
+            _detailList.innerText = 'List';
             
-            const detailNotes = document.createElement('p');
-            detailNotes.setAttribute('readonly','')
-            detailNotes.setAttribute('id', 'detail-notes');
-            detailNotes.innerText = 'Notes';
+            _detailNotes = document.createElement('textarea');
+            _detailNotes.setAttribute('readonly','')
+            _detailNotes.setAttribute('id', 'detail-notes');
+            _detailNotes.innerText = 'Notes';
+
+            detailsDisplay.append(
+                _detailName, 
+                _detailDate, 
+                _detailPriority, 
+                _detailList, 
+                _detailNotes)
+
+            _todoArea.append(container)
         }
 
         const _renderDetails = function(msg, todo){
@@ -277,7 +305,9 @@ const mainDetailsController = (
             _detailNotes.innerText = todo['notes'];
         }
 
-        PubSub.subscribe('todo-selected', _renderDetails)
+        PubSub.subscribe('todo-selected', _renderDetails);
+        PubSub.subscribe('webpage-loaded', _addDetailsContainer)
+        PubSub.subscribe('sidebar-item-selected', _removeDetailsContainer)
     }
 )();
 
@@ -286,10 +316,12 @@ const popupController = (
         const _popup = document.querySelector('#popup');
         const _listsSelector = document.querySelector('#add-todo-list');
         const _buttonCreate = document.querySelector('#popup-button');
+        const _buttonClose = document.querySelector('#close-pop-up');
         
         //hide or show popup
         const _toggle= function (){
-            _popup.classList.toggle('invisible')
+            _popup.classList.toggle('invisible');
+            PubSub.publish('popup-toggled');
         }
 
         const _populateListsSelector = function () {
@@ -304,16 +336,16 @@ const popupController = (
             })
 
             //append each one to selector
-            listArray.forEach((listName) =>{
-                //add options if it's not included already
+            for (const listName in lists){
                 if (!optionsText.includes(listName)){
-                //create options to add
-                const newOption = document.createElement('option');
-                newOption.setAttribute('data', listName);
-                newOption.innerText = listName;
-                _listsSelector.append(newOption)
-                }
-            })
+                    //create options to add
+                    const newOption = document.createElement('option');
+                    newOption.setAttribute('data', listName);
+                    newOption.innerText = listName;
+                    _listsSelector.append(newOption)
+                    }
+            }
+
         }
 
         //this function is ran when pressing the "create" button
@@ -322,9 +354,11 @@ const popupController = (
             _toggle();
         }
 
-        _buttonCreate.addEventListener('click', _createTodo)
+        _buttonCreate.addEventListener('click', _createTodo);
+        _buttonClose.addEventListener('click', _toggle)
 
         PubSub.subscribe('pressed-add-button', _toggle);
         PubSub.subscribe('pressed-add-button', _populateListsSelector)
     }
 )();
+

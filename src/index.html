@@ -5,47 +5,48 @@
 	<title><%= htmlWebpackPlugin.options.title %></title>
 </head>
 <body>
-    <header>
-        <button type="button" id="button-open-menu">
-            <img src=<%=require("./assets/menu-black.png")%> alt="">
-        </button>
-        <h1>Todo List</h1>
-        <button type="button" id="button-add-todo">+</button>
-    </header>
-	<main>
-        <div id="sidebar">
-            <ul id="common-items-area">
-                <li>Inbox</li>
-                <li>Today</li>
-                <li>This week</li>
-            </ul>
-            <div id="lists-area">
-                <div>
-                    <h2>Lists</h2>
-                    <button type="button">+</button>
+    <div id="visible-area">
+        <header>
+            <button type="button" id="button-open-menu">
+                <img src=<%=require("./assets/menu-black.png")%> alt="">
+            </button>
+            <h1>Todo List</h1>
+        
+        </header>
+            <main>
+            <div id="sidebar">
+                <ul id="common-items-area">
+                    <li>Inbox</li>
+                    <li>Today</li>
+                    <li>This week</li>
+                </ul>
+                <div id="lists-area">
+                    <div>
+                        <h2>Lists</h2>
+                        <button type="button">+</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="todo-area">
-
-            <h1 id="list-title">Inbox</h1>
-
-            <div id="todos-container" class="container">
-
+            <div id="todo-area">
+                <h1 id="list-title">Inbox</h1>
+                <div>
+                    <div id="todos-container" class="container">
+        
+                    </div>
+                    <button type="button" id="button-add-todo">Add todo</button>
+                </div>
             </div>
-
-            
-
-        </div>
-    </main>
-    <footer>
-        <h2>Héctor González Orozco</h2>
-        <a href='https://github.com/hectorgonzalezo/todo-list'>
-            <img alt="github logo" id="github-logo" src=<%=require("./assets/github-logo.png")%> >
-        </a>
-    </footer>
+        </main>
+        <footer>
+            <h2>Héctor González Orozco</h2>
+            <a href='https://github.com/hectorgonzalezo/todo-list'>
+                <img alt="github logo" id="github-logo" src=<%=require("./assets/github-logo.png")%> >
+            </a>
+        </footer>
+    </div>
     <div id="popup" class="invisible">
         <h1>Add new task</h1>
+        <button id="close-pop-up" type="button">x</button>
         <form action="" id="form-player-names" >
 
             <input type="text" id='add-todo-name' name='name' placeholder='I want to...' required>
@@ -64,10 +65,10 @@
 
             <select name="priority" id="add-todo-priority">
                     <option selected hidden>Priority</option>
-                    <option value="human">Priority 1</option>
-                    <option value="easy">Priority 2</option>
-                    <option value="hard">Priority 3</option>
-                    <option value="hard">Priority 4</option>
+                    <option value="high">High</option>
+                    <option value="normal">Normal</option>
+                    <option value="low">Low</option>
+
             </select>
 
             <!-- create list dymanically -->

@@ -62,12 +62,12 @@ const todoManager = (
     }
 )();
 
+
 const listManager = (
     function () {
-        let lists = {
-            'web':new List('juan'), 
-        'asdf':new List('otra')
-    };
+       
+        let lists = {}
+
 
         const addList = function (msg, listName){
             lists[listName] = List(listName);
@@ -84,6 +84,30 @@ const listManager = (
         const _publishLists = function(){
 
         }
+
+       
+
+        addList('', 'web');
+        const _dummyObj = new Todo(
+            'Terminar esta madre!',
+            'Va a tardar mas',
+            12,
+            'high',
+            'web'
+        );
+
+        const _anotherDummyObj = new Todo(
+            'Algun otro',
+            'La siguiente semana',
+            10,
+            'low',
+            'web'
+        );
+
+        const web = new List('web');
+
+        lists['web'].add(_dummyObj);
+        lists['web'].add(_anotherDummyObj);
 
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('list')
