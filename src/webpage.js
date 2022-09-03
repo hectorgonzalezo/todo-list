@@ -55,6 +55,8 @@ const sideBarController = (
 
 
         const _expandList = function (name, field) {
+            //if field exists
+            // else go to inbox
             _removeTrashBins();
             _removeSelectedClasses();
 
@@ -65,9 +67,20 @@ const sideBarController = (
             const deleteIcon = document.createElement('img');
             deleteIcon.src = deleteIconUrl;
             deleteIcon.classList.add('trash-bin');//so that it can be shaken
-            field.append(deleteIcon)
+            field.append(deleteIcon);
+
+            //delete list when pressing delete icon
+            deleteIcon.addEventListener('click', _deleteSelectedList);
         }
 
+        const _deleteSelectedList = function (e) {
+            e.stopPropagation();
+            const selectedList = document.querySelector('div.selected');
+            selectedList.remove();
+            PubSub.publish('pressed-delete-list', selectedList.id);
+            const inboxField = document.querySelector('#inbox-field');
+            inboxField.classList.add('selected');
+        }
 
         const _addList = function (name) {
             //create List field, add name and id
@@ -77,6 +90,7 @@ const sideBarController = (
             listField.classList.add('sidebar-list');
             const listTitle = document.createElement('h2');
             listTitle.innerText = _.capitalize(name);
+            listTitle.classList.add('list-title')
             listField.append(listTitle);
 
             _listsArea.append(listField);
@@ -165,9 +179,9 @@ const mainTodoListController = (
 
         //update left side div with items from list
         const _renderList = function (msg, listName = 'Inbox') {
-            webpage.cleanDiv(_todoContainer)
+            webpage.cleanDiv(_todoContainer);
             let list
-            if (listName == 'Inbox') {
+            if (listName == 'Inbox' || listName == undefined) {
                 list = inboxManager.getInbox()
             } else if(listName=='Today'){
                 list = inboxManager.getFilteredInbox(isToday);
@@ -239,11 +253,11 @@ const mainTodoListController = (
         PubSub.subscribe('sidebar-item-selected', _renderList);
         PubSub.subscribe('object-added-to-inbox', () => {
             _renderList()
-        })
+        });
         PubSub.subscribe('pressed-delete-button', _removeTodo);
-        PubSub.subscribe('object-updated', _renderList)
+        PubSub.subscribe('object-updated', _renderList);
+        PubSub.subscribe('list-removed', _renderList)
     }
-
 )();
 
 
@@ -356,7 +370,7 @@ const popupDisplay = (
             if (isPast(chosenDate)){
                 _dateWarning.classList.add('visible');
             } else if (_form.checkValidity()){
-                
+
                 e.preventDefault();  
                 _dateWarning.classList.remove('visible');
                 _toggle();

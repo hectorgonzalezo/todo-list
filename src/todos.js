@@ -97,10 +97,15 @@ const listManager = (
         }
 
         const getList = function(name){
+            if (lists.hasOwnProperty(name)){
             return lists[name]
+            } else {
+                return inboxManager.getInbox()
+            }
         }
 
-        const _publishLists = function(){
+        const _deleteList = function(msg, name){
+            delete lists[name]
         }
 
         const _addToList = function(msg, todo){
@@ -146,6 +151,7 @@ const listManager = (
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('object-added-to-inbox', _addToList);
         PubSub.subscribe('object-removed-from-inbox', _removeFromList);
+        PubSub.subscribe('pressed-delete-list', _deleteList)
         // PubSub.subscribe('todo-edited', _removeFromList)
     
         return {addList, getAllLists, getList}
@@ -200,7 +206,6 @@ const inboxManager = (
             let inboxArray = _inbox.getContent();
             //filter array and only get today's results
             inboxArray = inboxArray.filter((todo) => {
-                console.log(comparerFunction(todo['date']))
                 return comparerFunction(todo['date']);
             })
 
