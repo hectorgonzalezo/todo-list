@@ -47,15 +47,20 @@ const List = function(name){
         } )
     }
 
-    return {getName, getContent, length, add, remove}
+    const update = function(name, todo){
+        remove(name);
+        add(todo);
+    }
+
+    return {getName, getContent, length, add, remove, update}
 }
 
 //Inbox inherits from List
 //empty name
 const Inbox = function (){
-    const {length, getName, getContent, add, remove} = List('Inbox');
+    const {length, getName, getContent, add, remove, update} = List('Inbox');
 
-    return {length, getName, getContent, add, remove}
+    return {length, getName, getContent, add, remove, update}
 }
 
 const todoManager = (
@@ -174,6 +179,10 @@ const inboxManager = (
         const deleteTodo = function(todoName){
             _inbox.remove(todoName)
             PubSub.publish('object-removed-from-imbox', todoName)
+        }
+
+        const updateTodo = function(data){
+            _inbox.update(data['name'], data);
         }
 
     return {getInbox, addTodo, deleteTodo}

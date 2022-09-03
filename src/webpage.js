@@ -17,7 +17,16 @@ const webpage = (
             _visibleArea.classList.toggle('invisible');
         }
 
-        PubSub.subscribe('popup-toggled', _toggleVisibility)
+        const cleanDiv = function (div) {
+            //remove everything inside div
+            while (div.firstChild) {
+               div.removeChild(div.firstChild);
+            }
+        }
+
+        PubSub.subscribe('popup-toggled', _toggleVisibility);
+
+        return {cleanDiv}
     }
 )();
 
@@ -171,16 +180,10 @@ const mainTodoListController = (
         const _todoContainer = document.querySelector('#todos-container');
         const _todos = _todoContainer.children;
 
-        const _cleanTodoContainer = function () {
-            //remove everything inside containter
-            while (_todoContainer.firstChild) {
-                _todoContainer.removeChild(_todoContainer.firstChild);
-            }
-        }
 
         //update left side div with items from list
         const _renderList = function (msg, listName = 'Inbox') {
-            _cleanTodoContainer();
+            webpage.cleanDiv(_todoContainer)
             let list
             if (listName == 'Inbox') {
                 list = inboxManager.getInbox()
@@ -255,13 +258,13 @@ const mainTodoListController = (
 //class that build elements for detail display
 const DetailElement = function (name, type = 'p') {
     const title = document.createElement('h2');
-    const info = document.createElement(type);
+    let info = document.createElement(type);
 
     //parent should be a dom element
     const appendTo = function (parent) {
         title.innerText = _.capitalize(name) + ':'
         info.setAttribute('id', `detail-${name}`);
-        changeValue(name);
+        // this.changeValue(name);
         parent.append(title, info);
     }
 
@@ -273,14 +276,19 @@ const DetailElement = function (name, type = 'p') {
         info.innerText = _.capitalize(value);
     }
 
-    return { appendTo, getElement, changeValue}
+    const getValue = function(){
+        return info.innerText
+    }
+
+
+    return { appendTo, getElement, changeValue, getValue}
 }
 
 //inherits from DetailElement
 const DetailSelector = function(name){
     const title = document.createElement('h2');
     const info = document.createElement('select');
-    const {getElement} = DetailElement(name, 'select');
+    const {getElement, getValue} = DetailElement(name, 'select');
 
     const appendTo = function (parent) {
         title.innerText = _.capitalize(name) + ':'
@@ -292,7 +300,28 @@ const DetailSelector = function(name){
     const changeValue = function(){
         
     }
-    return {appendTo, getElement, changeValue}
+    return {appendTo, getElement, changeValue, getValue}
+}
+
+
+const DetailDate = function(name){
+    const title = document.createElement('h2');
+
+    const {appendTo, getElement} = DetailElement(name, 'input');
+
+
+    const changeValue = function(date){
+        const _element = getElement();
+        _element.setAttribute('type', 'date');
+       _element.value = date;
+    }
+
+
+    const getValue = function(){
+
+    }
+
+    return {appendTo, getElement, changeValue, getValue}
 }
 
 const mainDetailsController = (
@@ -305,10 +334,67 @@ const mainDetailsController = (
         let _detailNotes;
 
         const _removeDetailsContainer = function () {
-            const previousDetailsContainer = document.querySelector('#details-container')
-            if (previousDetailsContainer) {
-                previousDetailsContainer.remove()
+            const previousContainer = document.querySelector('#details-container')
+            if (previousContainer) {
+                previousContainer.remove()
             }
+        }
+
+
+        const _populateDetails = function (container){
+            // const container = document.querySelector('#details-display');
+            webpage.cleanDiv(container);
+            _detailName = document.createElement('h1');
+            _detailName.setAttribute('id', 'detail-name');
+            container.append(_detailName)
+
+            _detailDate = new DetailElement('date', 'p');
+            _detailDate.appendTo(container);
+
+            _detailPriority = new DetailElement('priority');
+            _detailPriority.appendTo(container);
+
+            _detailList = new DetailElement('list');
+            
+            _detailList.appendTo(container);
+
+            _detailNotes = new DetailElement('notes', 'textarea');
+            _detailNotes.appendTo(container);
+            _detailNotes.getElement().setAttribute('readonly','')
+        }
+
+        const _populateEditDetails = function (){
+            const container = document.querySelector('#details-display');
+            const _previousName = _detailName.innerText;
+            //match the correct date format using regex
+            //and format function from date-fns
+            let _previousDate = _detailDate.getValue();
+            _previousDate = new Date(_previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
+            _previousDate = format(_previousDate, 'yyy-MM-dd')
+            
+            webpage.cleanDiv(container);
+            //add new text input and populate it with previous todo name
+            _detailName = document.createElement('input');
+            _detailName.setAttribute('type', 'text')
+            _detailName.setAttribute('id', 'detail-name');
+            _detailName.value = _previousName
+            container.append(_detailName)
+
+            _detailDate = new DetailDate('date');
+            console.log(_previousDate)
+            _detailDate.changeValue(_previousDate);
+            _detailDate.appendTo(container);
+
+            // _detailPriority = new DetailElement('priority');
+            // _detailPriority.appendTo(container);
+
+            // _detailList = new DetailSelector('list');
+            
+            // _detailList.appendTo(container);
+
+            // _detailNotes = new DetailElement('notes', 'textarea');
+            // _detailNotes.appendTo(container);
+            // _detailNotes.getElement().setAttribute('readonly','')
         }
 
         const _addDetailsContainer = function (todo) {
@@ -326,29 +412,13 @@ const mainDetailsController = (
             detailsDisplay.setAttribute('id', 'details-display')
             container.append(title, detailsDisplay);
 
-            _detailName = document.createElement('h1');
-            _detailName.innerText = 'ProjectName'
-            _detailName.setAttribute('id', 'detail-name');
-            detailsDisplay.append(_detailName)
-
-            _detailDate = new DetailElement('date', 'p');
-            _detailDate.appendTo(detailsDisplay);
-
-            _detailPriority = new DetailElement('priority');
-            _detailPriority.appendTo(detailsDisplay);
-
-            _detailList = new DetailSelector('list');
-            
-            _detailList.appendTo(detailsDisplay);
-
-            _detailNotes = new DetailElement('notes', 'textarea');
-            _detailNotes.appendTo(detailsDisplay);
-            _detailNotes.getElement().setAttribute('readonly','')
+            _populateDetails(detailsDisplay);
 
             _renderButtons(container, todo['name'])
 
             _todoArea.append(container)
         }
+
 
         const _renderButtons = function (parent, todoName) {
             //add div with buttons at the bottom
@@ -357,23 +427,58 @@ const mainDetailsController = (
             const buttonEdit = document.createElement('button');
             buttonEdit.setAttribute('type', 'button');
             buttonEdit.innerText = 'Edit todo'
+
             const imgDelete = document.createElement('img');
             imgDelete.src = deleteIconBlackUrl;
             imgDelete.classList.add('trash-bin')
             imgDelete.setAttribute('data', todoName)
             buttonWrapper.append(buttonEdit, imgDelete);
+
             parent.append(buttonWrapper);
 
-            buttonEdit.addEventListener('click', _editTodo.bind(buttonEdit));
+            //edit button
+            buttonEdit.addEventListener('click', _editTodo);
+            //delete button
             imgDelete.addEventListener('click', () => {
                 _deleteTodo(imgDelete);
             });
         }
 
-        const _editTodo = function (){
+        //when pressing edit todo, change the functionality of button
+        //to save edited todo
+        const _changeEditButton = function(){
+            const buttonSave = document.querySelector('#details-buttons-area > button');
+            buttonSave.innerText = 'Save todo';
 
+            buttonSave.removeEventListener('click', _editTodo);
+            buttonSave.addEventListener('click', _saveTodo)
+        }
+
+        //when pressing "edit todo" button, change the display and button
+        const _editTodo = function (){
+            _populateEditDetails();
+            _changeEditButton();
         };
 
+        //updates selected todo
+        const _saveTodo = function () {
+                console.log(_detailDate.getValue())
+            //     _detailDate;
+            //     _detailPriority;
+            //     _detailList;
+            //     _detailNotes;
+            // //extract data from form and make it a FormData
+            //  const formData = new FormData(_form);
+            //  const todoData = Object.fromEntries(formData.entries());
+ 
+            //  //add to inbox
+            //  inboxManager.addTodo(todoData);
+            //  const inbox = inboxManager.getInbox()
+ 
+            //  _clearForm();
+        }
+
+        
         const _deleteTodo = function(button) {
             const todoName = button.getAttribute('data') 
             inboxManager.deleteTodo(todoName);
@@ -394,6 +499,7 @@ const mainDetailsController = (
             _detailList.changeValue(todo['list']);
             _detailNotes.changeValue(todo['notes']);
         }
+
 
         PubSub.subscribe('todo-selected', _renderDetails);
         // PubSub.subscribe('webpage-loaded', _addDetailsContainer);

@@ -21,6 +21,10 @@ button {
     padding: 5px;
 }
 
+textarea {
+    resize: none;
+}
+
 button:hover {
     background-color: var(--color-complementary-light);
     color: var(--color-text-book);
@@ -273,7 +277,7 @@ body .sidebar-list,
     grid-template-rows: 1fr 1fr 1fr 1fr 3fr;
     height: 100%;
 }
-#details-display > h1 {
+#details-display > *:first-child {
     grid-column: 1 / -1;
 }
 
