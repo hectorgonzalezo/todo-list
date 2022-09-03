@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {isToday, isThisWeek, compareDesc, compareAsc} from 'date-fns'
+import {compareAsc} from 'date-fns'
 //todo class
 class Todo {
     constructor(name, notes, date, priority, list =''){
@@ -27,7 +27,6 @@ const List = function(name){
 
     const _filterContent = function(){
         _content = _content.sort((a, b) => {
-            console.log(compareAsc(a['date'], b['date']))
             return compareAsc(a['date'], b['date'])
         });
         return _content
@@ -158,7 +157,7 @@ const inboxManager = (
         const _dummyObj = new Todo(
             'Finish Project',
             'This should take no more than 5 days.',
-            new Date('2022/12/21'),
+            new Date('2022/09/03'),
             'high',
             'asfas'
         );
@@ -166,7 +165,7 @@ const inboxManager = (
         const _anotherDummyObj = new Todo(
             'Otro Proyecto',
             'Va a tardar mas',
-            new Date('2023/12/12'),
+            new Date('2022/09/04'),
             'low'
         )
 
@@ -197,34 +196,22 @@ const inboxManager = (
             PubSub.publish('todo-selected', data);
         }
 
-        const getTodayInbox = function(){
+        const getFilteredInbox = function(comparerFunction){
             let inboxArray = _inbox.getContent();
             //filter array and only get today's results
             inboxArray = inboxArray.filter((todo) => {
-                return isToday(todo['date'])
+                console.log(comparerFunction(todo['date']))
+                return comparerFunction(todo['date']);
             })
 
             //make new list and add array to it
             const filteredList = new List('Today');
+            filteredList.from(inboxArray);
 
             return filteredList
         }
 
-        const getWeekInbox = function(){
-            let inboxArray = _inbox.getContent();
-            //filter array and only get today's results
-            inboxArray = inboxArray.filter((todo) => {
-                return isThisWeek(todo['date'])
-            })
-
-            //make new list and add array to it
-            const filteredList = new List('This week');
-
-            return filteredList
-
-        }
-
-    return {getInbox, addTodo, deleteTodo, updateTodo, getTodayInbox, getWeekInbox}
+    return {getInbox, addTodo, deleteTodo, updateTodo, getFilteredInbox}
     }
 )();
 

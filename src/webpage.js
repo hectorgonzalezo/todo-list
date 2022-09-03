@@ -1,7 +1,7 @@
 import PubSub from "pubsub-js";
 import deleteIconUrl from './assets/delete-icon.png';
 import { listManager, inboxManager } from "./todos.js";
-import { format, differenceInDays, formatDistanceToNow} from 'date-fns';
+import {isToday, isThisWeek, isPast, format, formatDistanceToNow} from 'date-fns';
 import deleteIconBlackUrl from './assets/delete-icon-black.png';
 
 const webpage = (
@@ -170,9 +170,9 @@ const mainTodoListController = (
             if (listName == 'Inbox') {
                 list = inboxManager.getInbox()
             } else if(listName=='Today'){
-                list = inboxManager.getTodayInbox();
+                list = inboxManager.getFilteredInbox(isToday);
             } else if (listName == 'This week'){ 
-                list = inboxManager.getWeekInbox();
+                list = inboxManager.getFilteredInbox(isThisWeek);
             } else {
                 list = listManager.getList(listName);
             }
@@ -262,7 +262,6 @@ const popupFormController = (
             const todoData = Object.fromEntries(formData.entries());
             todoData['date'] = new Date(todoData['date']);
 
-            console.log(todoData)
             //add to inbox
             inboxManager.addTodo(todoData);
 
@@ -325,6 +324,9 @@ const popupDisplay = (
         const _listsSelector = document.querySelector('#add-todo-list');
         const _buttonCreate = document.querySelector('#popup-button');
         const _buttonClose = document.querySelector('#close-pop-up');
+        const _dateInput = document.querySelector('input#date');
+        const _dateWarning = document.querySelector('#date-warning');
+        const _form = document.querySelector('#popup > form');
 
         //hide or show popup
         const _toggle = function () {
@@ -336,11 +338,30 @@ const popupDisplay = (
             selectorPopulator.populateLists(_listsSelector);
         }
 
+        //if the user chooses a date that passed, highlight the input
+        _dateInput.addEventListener('change', () =>{
+            const chosenDate = new Date(_dateInput.value); 
+            if (isPast(chosenDate)){
+                _dateInput.classList.add('invalid')
+            } else {
+                _dateWarning.classList.remove('visible');
+                _dateInput.classList.remove('invalid')
+            }
+        })
 
         _buttonCreate.addEventListener('click', (e) => {
-            e.preventDefault();
-            _toggle();
-            PubSub.publish('pressed-create-button');
+            const chosenDate = new Date(_dateInput.value);
+            //if the user chooses a date that passed,  show warning
+            
+            if (isPast(chosenDate)){
+                _dateWarning.classList.add('visible');
+            } else if (_form.checkValidity()){
+                
+                e.preventDefault();  
+                _dateWarning.classList.remove('visible');
+                _toggle();
+                PubSub.publish('pressed-create-button');
+            }
         });
         _buttonClose.addEventListener('click', _toggle)
 
