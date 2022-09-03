@@ -3,7 +3,7 @@
 :root {
     --color-background: #f0f9ff;
     --color-light: #e0f2fe;
-    --color-medium-light: #7dd3fc;
+    --color-medium-light: #b4e1f6;
     --color-medium-dark: #38bdf8;
     --color-dark: #0c4a6e;
     --color-complementary-light: rgb(228, 148, 148);
@@ -14,16 +14,27 @@
     outline: red dashed;
 } */
 
-button {
+body button {
     background-color: var(--color-background);
     border-radius: 0.8rem;
     box-shadow: 2px 2px 4px var(--color-dark);
     padding: 5px;
 }
 
-textarea {
+
+body input,
+textarea,
+select  {
+    background-color: var(--color-background);
     resize: none;
+    border-radius: 0.8rem;
+    padding: 3px;
+    padding-left: 6px;
+    font-size: 1rem;
+    border: none;
+    box-shadow: 2px 2px 4px var(--color-dark);
 }
+
 
 button:hover {
     background-color: var(--color-complementary-light);
@@ -40,9 +51,9 @@ button:active {
 
 #visible-area{
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    width: 100vw;
+    display: grid;
+    grid-template-rows: 1fr 8fr 50px;
 }
 
 #visible-area.invisible {
@@ -54,7 +65,7 @@ header {
     height: 6rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0px 20px 0px 20px;
 }
 
@@ -72,20 +83,19 @@ header img:first-of-type {
 
 main {
     background-color: var(--color-background);
-    height: 100%;
-    display: flex;
-    position: relative;
+    /* height: 100%; */
+    display: grid; 
+    grid-template-columns: minmax(150px,1fr) 7fr;
+    min-width: 800px;
 }
 
 
 #sidebar {
     background-color: var(--color-medium-light);
-    width: auto;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 200px;
+    display: grid;
+    grid-template-rows: 1fr 3fr;
+    align-items: start;
+    min-width: 100px;
     gap: 50px;
     padding-top: 20px;
 }
@@ -93,21 +103,17 @@ main {
 #sidebar > ul,
 #sidebar > #lists-area{
     display: grid;
-    grid-template-rows: 1fr;
-    grid-auto-rows: 1fr;
+    grid-template-rows: 36px;
+    grid-auto-rows: 36px;
     gap: 20px;
     min-width: 80px;
     width: auto;
 }
 
-
-#sidebar.hidden {
-    /* width: 0px; */
-    left: -200px;
-    position: absolute;
-    animation: slideOut 1s forwards;
-    width: auto;
+#lists-area{
+    height: auto;
 }
+
 
 #lists-area > div{
     display: flex;
@@ -183,9 +189,10 @@ body .sidebar-list,
     grid-column: 2 / -1;
 }
 
+
 #todo-area{
     --gap-size: 20px;
-    width: 100%;
+    width: auto;
     display: grid;
     gap: var(--gap-size);
     padding: var(--gap-size);
@@ -226,7 +233,7 @@ body .sidebar-list,
     border-radius: 1rem;
     box-shadow: 4px 4px 8px 2px grey;
     height: 80%;
-    width: 80%;
+    width: clamp(200px, 80%, 400px);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -271,11 +278,16 @@ body .sidebar-list,
     height: 24px;
 }
 
+
+
+
+
 #details-display{
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 3fr;
     height: 100%;
+
 }
 #details-display > *:first-child {
     grid-column: 1 / -1;
@@ -289,8 +301,16 @@ body .sidebar-list,
 #details-container > h2 {
     text-align: center;
     font-size: 1.5rem;
-    background-color: var(--color-medium-dark);
+    background-color: var(--color-dark);
     color: white;
+    align-self: stretch;
+    justify-self: stretch;
+}
+
+
+#details-display input,
+#details-display select{
+    height: 50%;
 }
 
 
@@ -303,19 +323,37 @@ body .sidebar-list,
     width: 24px;
     height: 24px;
 }
+
+
+
+/* popup area */
+
 #popup {
-    background-color: var(--color-medium-dark);
+    background-color: var(--color-medium-light);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 20px;
     opacity: 1;
+    width: 400px;
     border-radius: 1rem;
     box-shadow: 4px 4px 8px 2px grey;
     display: grid;
     grid-template-columns: 10fr 1fr;
     grid-template-rows: 1fr 10fr;
+}
+
+#popup > h1 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+#popup > button {
+    position:  relative;
+    top: -12px;
+    left: -3px;
+    padding: 2px 10px 2px 10px;
 }
 
 #popup.invisible {
@@ -364,10 +402,7 @@ body .sidebar-list,
     justify-self: center;
 }
 
-
-#popup textarea{
-    resize: none;
-}
+/* footer area */
 
 footer {
     margin-top: auto;

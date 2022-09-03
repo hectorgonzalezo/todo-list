@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {isToday, isThisWeek, compareDesc, compareAsc} from 'date-fns'
 //todo class
 class Todo {
     constructor(name, notes, date, priority, list =''){
@@ -6,10 +7,10 @@ class Todo {
         this.notes = notes;
         this.date = date;
         this.date = date;
-
         this.priority = priority;
         this.list = list;
     }
+
     
     getName(){
         return this.name
@@ -18,15 +19,22 @@ class Todo {
     getList(){
         return this.list
     }
-    
 }
 
 const List = function(name){
     //start with empty content if not provided
     let _content = [];
 
+    const _filterContent = function(){
+        _content = _content.sort((a, b) => {
+            console.log(compareAsc(a['date'], b['date']))
+            return compareAsc(a['date'], b['date'])
+        });
+        return _content
+    }
+
     const length = function (){
-        return Object.keys(content).length; 
+        return Object.keys(_content).length; 
     };
 
     const getName = function(){
@@ -34,11 +42,16 @@ const List = function(name){
     }
 
     const getContent = function(){
-        return _content
+        
+        return _filterContent();
     }
 
     const add = function(todo){
         _content.push(todo);
+    }
+
+    const from = function(array){
+        _content = array;
     }
 
     const remove = function(name){
@@ -47,15 +60,15 @@ const List = function(name){
         } )
     }
 
-    return {getName, getContent, length, add, remove}
+    return {getName, getContent, length, add, from, remove}
 }
 
 //Inbox inherits from List
 //empty name
 const Inbox = function (){
-    const {length, getName, getContent, add, remove, update} = List('Inbox');
+    const {length, getName, getContent, add, remove} = List('Inbox');
 
-    return {length, getName, getContent, add, remove, update}
+    return {length, getName, getContent, add, remove}
 }
 
 const todoManager = (
@@ -99,7 +112,6 @@ const listManager = (
                 lists[todoListName].add(todo)
             }
 
-            console.log(getAllLists()['web'].getContent());
         }
 
         const _removeFromList = function (msg, todoName) {
@@ -114,7 +126,7 @@ const listManager = (
         const _dummyObj = new Todo(
             'Terminar esta madre!',
             'Va a tardar mas',
-            12,
+            new Date('2022/09/17'),
             'high',
             'web'
         );
@@ -122,7 +134,7 @@ const listManager = (
         const _anotherDummyObj = new Todo(
             'Algun otro',
             'La siguiente semana',
-            10,
+            new Date('2022/09/16'),
             'low',
             'web'
         );
@@ -146,7 +158,7 @@ const inboxManager = (
         const _dummyObj = new Todo(
             'Finish Project',
             'This should take no more than 5 days.',
-            '2012/12/21',
+            new Date('2022/12/21'),
             'high',
             'asfas'
         );
@@ -154,7 +166,7 @@ const inboxManager = (
         const _anotherDummyObj = new Todo(
             'Otro Proyecto',
             'Va a tardar mas',
-            10,
+            new Date('2023/12/12'),
             'low'
         )
 
@@ -185,7 +197,34 @@ const inboxManager = (
             PubSub.publish('todo-selected', data);
         }
 
-    return {getInbox, addTodo, deleteTodo, updateTodo}
+        const getTodayInbox = function(){
+            let inboxArray = _inbox.getContent();
+            //filter array and only get today's results
+            inboxArray = inboxArray.filter((todo) => {
+                return isToday(todo['date'])
+            })
+
+            //make new list and add array to it
+            const filteredList = new List('Today');
+
+            return filteredList
+        }
+
+        const getWeekInbox = function(){
+            let inboxArray = _inbox.getContent();
+            //filter array and only get today's results
+            inboxArray = inboxArray.filter((todo) => {
+                return isThisWeek(todo['date'])
+            })
+
+            //make new list and add array to it
+            const filteredList = new List('This week');
+
+            return filteredList
+
+        }
+
+    return {getInbox, addTodo, deleteTodo, updateTodo, getTodayInbox, getWeekInbox}
     }
 )();
 

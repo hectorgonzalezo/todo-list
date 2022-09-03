@@ -7,9 +7,6 @@
 <body>
     <div id="visible-area">
         <header>
-            <button type="button" id="button-open-menu">
-                <img src=<%=require("./assets/menu-black.png")%> alt="">
-            </button>
             <h1>Todo List</h1>
         
         </header>
@@ -53,17 +50,16 @@
 
             <div id="add-todo-notes">
                 <label for="notes">Notes:</label>
-                <textarea id='notes' name='notes' placeholder='notes' rows="10">
-                </textarea>
+                <textarea id='notes' name='notes' placeholder='Notes' rows="10"></textarea>
             </div>
 
             <div id="add-todo-date">
-                <label for="date">Due date</label>
+                <label for="date">Due date:</label>
                 <input type="date" id='date' name='date' required>
             </div>
 
             <div>
-                <label for ='priority'>Priority</label>
+                <label for ='priority'>Priority:</label>
                 <select name="priority" id="add-todo-priority">
                         <option value="high">High</option>
                         <option value="normal" selected>Normal</option>
@@ -72,9 +68,9 @@
             </div>
 
             <div>
-                <label for="list"> List</label>
+                <label for="list">List:</label>
                 <select name="list" id="add-todo-list">
-                    <option selected hidden></option>
+                    <option selected></option>
                         </select>
             </div>
             <button id="popup-button">Create</button>
