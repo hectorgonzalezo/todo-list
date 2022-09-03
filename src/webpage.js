@@ -3,6 +3,7 @@ import { format, compareAsc, differenceInDays} from 'date-fns';
 import { listManager, inboxManager } from "./todos.js";
 import deleteIconUrl from './assets/delete-icon.png';
 import deleteIconBlackUrl from './assets/delete-icon-black.png';
+import { get } from "lodash";
 
 const webpage = (
     function () {
@@ -264,7 +265,7 @@ const DetailElement = function (name, type = 'p') {
     const appendTo = function (parent) {
         title.innerText = _.capitalize(name) + ':'
         info.setAttribute('id', `detail-${name}`);
-        // this.changeValue(name);
+        this.changeValue(name);
         parent.append(title, info);
     }
 
@@ -285,20 +286,16 @@ const DetailElement = function (name, type = 'p') {
 }
 
 //inherits from DetailElement
-const DetailSelector = function(name){
+const DetailSelector = function(name, priority){
     const title = document.createElement('h2');
-    const info = document.createElement('select');
-    const {getElement, getValue} = DetailElement(name, 'select');
-
-    const appendTo = function (parent) {
-        title.innerText = _.capitalize(name) + ':'
-        info.setAttribute('id', `detail-list`);
-        selectorPopulator.populate(info);
-        parent.append(title, info);
-    }
+    const {appendTo, getElement, getValue} = DetailElement(name, 'select');
 
     const changeValue = function(){
-        
+        if (priority == true){
+            selectorPopulator.populatePriorities(this.getElement())
+        } else {
+        selectorPopulator.populateLists(this.getElement())
+        }
     }
     return {appendTo, getElement, changeValue, getValue}
 }
@@ -307,13 +304,20 @@ const DetailSelector = function(name){
 const DetailDate = function(name){
     const title = document.createElement('h2');
 
-    const {appendTo, getElement} = DetailElement(name, 'input');
+    const {getElement} = DetailElement(name, 'input');
 
+    //override inherited appendTo metod, so that value can be changed on demand.
+    const appendTo = function (parent) {
+        title.innerText = 'Date :'
+        const info = getElement();
+        info.setAttribute('id', `detail-date`);
+        parent.append(title, info);
+    }
 
     const changeValue = function(date){
         const _element = getElement();
         _element.setAttribute('type', 'date');
-       _element.value = date;
+        _element.value = date;
     }
 
 
@@ -365,14 +369,19 @@ const mainDetailsController = (
 
         const _populateEditDetails = function (){
             const container = document.querySelector('#details-display');
+
+            //extract data from previous elements to fill in the fields
             const _previousName = _detailName.innerText;
             //match the correct date format using regex
             //and format function from date-fns
             let _previousDate = _detailDate.getValue();
             _previousDate = new Date(_previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
-            _previousDate = format(_previousDate, 'yyy-MM-dd')
+            _previousDate = format(_previousDate, 'yyy-MM-dd');
+            const _previousNotes = _detailNotes.getElement().value;
+            console.log(_previousNotes.value)
             
             webpage.cleanDiv(container);
+
             //add new text input and populate it with previous todo name
             _detailName = document.createElement('input');
             _detailName.setAttribute('type', 'text')
@@ -381,20 +390,19 @@ const mainDetailsController = (
             container.append(_detailName)
 
             _detailDate = new DetailDate('date');
-            console.log(_previousDate)
             _detailDate.changeValue(_previousDate);
             _detailDate.appendTo(container);
 
-            // _detailPriority = new DetailElement('priority');
-            // _detailPriority.appendTo(container);
+            _detailPriority = new DetailSelector('priority', true);
+            _detailPriority.appendTo(container);
 
-            // _detailList = new DetailSelector('list');
+            _detailList = new DetailSelector('list');
+            _detailList.appendTo(container)
             
-            // _detailList.appendTo(container);
 
-            // _detailNotes = new DetailElement('notes', 'textarea');
-            // _detailNotes.appendTo(container);
-            // _detailNotes.getElement().setAttribute('readonly','')
+            _detailNotes = new DetailElement('notes', 'textarea');
+            _detailNotes.appendTo(container);
+            _detailNotes.changeValue(_previousNotes)
         }
 
         const _addDetailsContainer = function (todo) {
@@ -538,11 +546,24 @@ const popupFormController = (
 //used by popup and todo details
 const selectorPopulator = (
     function () {
-        const populate = function(selector){
+        const populateLists = function(selector){
             //an option is the html element <option>
             //extract lists
             const lists = listManager.getAllLists();
 
+            _populate(selector, lists)
+        }
+
+        const populatePriorities = function(selector){
+            //an option is the html element <option>
+            //extract lists
+            const priorities = {'High':'High', 
+            'Normal':'Normal', 
+            'Low': 'low'};
+            _populate(selector, priorities)
+        }
+
+        const _populate = function(selector, array){
             const existingOptions = Array.from(selector.children);
             //extract text from existingSelectors
             const optionsText = existingOptions.map((option) => {
@@ -550,18 +571,17 @@ const selectorPopulator = (
             })
 
             //append each one to selector
-            for (const listName in lists) {
-                if (!optionsText.includes(listName)) {
+            for (const element in array) {
+                if (!optionsText.includes(element)) {
                     //create options to add
                     const newOption = document.createElement('option');
-                    newOption.setAttribute('data', listName);
-                    newOption.innerText = listName;
+                    newOption.setAttribute('data', element);
+                    newOption.innerText = element;
                     selector.append(newOption)
                 }
             }
         }
-
-    return {populate}
+    return {populateLists, populatePriorities}
     }
 )();
 
@@ -579,7 +599,7 @@ const popupDisplay = (
         }
 
         const _populateListsSelector = function () {
-            selectorPopulator.populate(_listsSelector);
+            selectorPopulator.populateLists(_listsSelector);
         }
 
 
