@@ -1,5 +1,5 @@
 import PubSub from "pubsub-js";
-import { format, compareAsc, differenceInDays} from 'date-fns';
+import { format, compareAsc, differenceInDays, previousSaturday} from 'date-fns';
 import { listManager, inboxManager } from "./todos.js";
 import deleteIconUrl from './assets/delete-icon.png';
 import deleteIconBlackUrl from './assets/delete-icon-black.png';
@@ -230,11 +230,12 @@ const mainTodoListController = (
         };
 
         const _selectTodo = function (todoWrapper) {
+            if (todoWrapper){//prevents from trying when there are no more todos
             //remove selected from the rest of todos
             const currentTodos = Array.from(_todos)
             currentTodos.forEach((todo) => todo.classList.remove('selected'));
             todoWrapper.classList.add('selected');
-
+            }
         }
 
         const _removeTodo = function (){//when pressing delete button on details
@@ -250,7 +251,8 @@ const mainTodoListController = (
         PubSub.subscribe('object-added-to-inbox', () => {
             _renderList()
         })
-        PubSub.subscribe('pressed-delete-button', _removeTodo)
+        PubSub.subscribe('pressed-delete-button', _removeTodo);
+        PubSub.subscribe('object-updated', _renderList)
     }
 
 )();
@@ -278,7 +280,12 @@ const DetailElement = function (name, type = 'p') {
     }
 
     const getValue = function(){
+        //for notes, return a different value
+        if(type=='textarea'){
+            return info.value
+        } else {
         return info.innerText
+        }
     }
 
 
@@ -288,7 +295,7 @@ const DetailElement = function (name, type = 'p') {
 //inherits from DetailElement
 const DetailSelector = function(name, priority){
     const title = document.createElement('h2');
-    const {appendTo, getElement, getValue} = DetailElement(name, 'select');
+    const {appendTo, getElement} = DetailElement(name, 'select');
 
     const changeValue = function(){
         if (priority == true){
@@ -296,6 +303,10 @@ const DetailSelector = function(name, priority){
         } else {
         selectorPopulator.populateLists(this.getElement())
         }
+    }
+
+    const getValue = function(){
+        return getElement().value
     }
     return {appendTo, getElement, changeValue, getValue}
 }
@@ -306,6 +317,8 @@ const DetailDate = function(name){
 
     const {getElement} = DetailElement(name, 'input');
 
+    const _element = getElement();
+
     //override inherited appendTo metod, so that value can be changed on demand.
     const appendTo = function (parent) {
         title.innerText = 'Date :'
@@ -315,14 +328,13 @@ const DetailDate = function(name){
     }
 
     const changeValue = function(date){
-        const _element = getElement();
         _element.setAttribute('type', 'date');
         _element.value = date;
     }
 
 
     const getValue = function(){
-
+        return _element.value;
     }
 
     return {appendTo, getElement, changeValue, getValue}
@@ -377,8 +389,7 @@ const mainDetailsController = (
             let _previousDate = _detailDate.getValue();
             _previousDate = new Date(_previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
             _previousDate = format(_previousDate, 'yyy-MM-dd');
-            const _previousNotes = _detailNotes.getElement().value;
-            console.log(_previousNotes.value)
+            const _previousNotes = _detailNotes.getValue();
             
             webpage.cleanDiv(container);
 
@@ -386,6 +397,7 @@ const mainDetailsController = (
             _detailName = document.createElement('input');
             _detailName.setAttribute('type', 'text')
             _detailName.setAttribute('id', 'detail-name');
+           
             _detailName.value = _previousName
             container.append(_detailName)
 
@@ -433,6 +445,9 @@ const mainDetailsController = (
             const buttonWrapper = document.createElement('div');
             buttonWrapper.setAttribute('id', 'details-buttons-area')
             const buttonEdit = document.createElement('button');
+             //data attribute is used by edit button to extract the previous
+            //name of the todo, and thus be able to edit it.
+            buttonEdit.setAttribute('data', todoName);
             buttonEdit.setAttribute('type', 'button');
             buttonEdit.innerText = 'Edit todo'
 
@@ -459,7 +474,10 @@ const mainDetailsController = (
             buttonSave.innerText = 'Save todo';
 
             buttonSave.removeEventListener('click', _editTodo);
-            buttonSave.addEventListener('click', _saveTodo)
+            buttonSave.addEventListener('click', ()=>
+            {
+                _saveTodo(buttonSave.getAttribute('data'))
+            })
         }
 
         //when pressing "edit todo" button, change the display and button
@@ -469,19 +487,22 @@ const mainDetailsController = (
         };
 
         //updates selected todo
-        const _saveTodo = function () {
-                console.log(_detailDate.getValue())
-            //     _detailDate;
-            //     _detailPriority;
-            //     _detailList;
-            //     _detailNotes;
-            // //extract data from form and make it a FormData
-            //  const formData = new FormData(_form);
-            //  const todoData = Object.fromEntries(formData.entries());
+        const _saveTodo = function (previousName) {
+            const name = _detailName.value;
+            const date = _detailDate.getValue()
+            const priority = _detailPriority.getValue();
+            const list = _detailList.getValue();
+            const notes = _detailNotes.getValue();
+            
+            //give the data the format required by inboxManager
+            const todoData = {name, date, priority, list, notes};
  
             //  //add to inbox
-            //  inboxManager.addTodo(todoData);
+             inboxManager.updateTodo(todoData, previousName);
             //  const inbox = inboxManager.getInbox()
+
+            // PubSub.publish('todo-edited', previousName)
+            PubSub.publish('object-added-to-inbox', '')
  
             //  _clearForm();
         }

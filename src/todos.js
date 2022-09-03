@@ -26,7 +26,7 @@ const List = function(name){
     let _content = [];
 
     const length = function (){
-        return Object.keys(content).length;
+        return Object.keys(content).length; 
     };
 
     const getName = function(){
@@ -47,12 +47,7 @@ const List = function(name){
         } )
     }
 
-    const update = function(name, todo){
-        remove(name);
-        add(todo);
-    }
-
-    return {getName, getContent, length, add, remove, update}
+    return {getName, getContent, length, add, remove}
 }
 
 //Inbox inherits from List
@@ -103,13 +98,14 @@ const listManager = (
             if (lists.hasOwnProperty(todoListName)){
                 lists[todoListName].add(todo)
             }
+
+            console.log(getAllLists()['web'].getContent());
         }
 
         const _removeFromList = function (msg, todoName) {
-            for (const list in lists) {
-                if (list.hasOwnProperty(todoName)) {
-                    delete list.todoName
-                }
+            for (const listName in lists) {
+                const list = lists[listName];
+                list.remove(todoName)
             }
         }
 
@@ -139,6 +135,7 @@ const listManager = (
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('object-added-to-inbox', _addToList);
         PubSub.subscribe('object-removed-from-inbox', _removeFromList);
+        // PubSub.subscribe('todo-edited', _removeFromList)
     
         return {addList, getAllLists, getList}
     }
@@ -178,14 +175,17 @@ const inboxManager = (
 
         const deleteTodo = function(todoName){
             _inbox.remove(todoName)
-            PubSub.publish('object-removed-from-imbox', todoName)
+            PubSub.publish('object-removed-from-inbox', todoName)
         }
 
-        const updateTodo = function(data){
-            _inbox.update(data['name'], data);
+        const updateTodo = function(data, previousName){
+            deleteTodo(previousName)
+            addTodo(data);
+
+            PubSub.publish('todo-selected', data);
         }
 
-    return {getInbox, addTodo, deleteTodo}
+    return {getInbox, addTodo, deleteTodo, updateTodo}
     }
 )();
 
