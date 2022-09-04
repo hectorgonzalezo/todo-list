@@ -6,12 +6,10 @@ class Todo {
         this.name = name;
         this.notes = notes;
         this.date = date;
-        this.date = date;
         this.priority = priority;
         this.list = list;
         this.done = done;
     }
-
     
     getName(){
         return this.name
@@ -60,27 +58,25 @@ const List = function(name){
         } )
     }
 
-    return {getName, getContent, length, add, from, remove}
+    const update = function(name, data){
+        //find todo index and update information
+        const indexOfTodoToUpdate = _content.findIndex((todo) => todo['name'] == name)
+        //if it found one, update it
+        if (indexOfTodoToUpdate >= 0){
+        _content[indexOfTodoToUpdate] = data;
+        }
+    }
+
+    return {getName, getContent, length, add, from, remove, update}
 }
 
 //Inbox inherits from List
 //empty name
 const Inbox = function (){
-    const {length, getName, getContent, add, remove} = List('Inbox');
+    const {length, getName, getContent, add, remove, update} = List('Inbox');
 
-    return {length, getName, getContent, add, remove}
+    return {length, getName, getContent, add, remove, update}
 }
-
-const todoManager = (
-    function () {
-        let todos = {};
-
-        function addTodo(msg, data){
-
-            return newTodo(data);
-        }
-    }
-)();
 
 
 const listManager = (
@@ -126,6 +122,13 @@ const listManager = (
             }
         }
 
+        const _updateList = function (msg, updatedTodo){
+            for (const listName in lists) {
+                const list = lists[listName];
+                list.update(updatedTodo)
+            } 
+        }
+
         addList('', 'web');
 
         const _dummyObj = new Todo(
@@ -153,7 +156,7 @@ const listManager = (
         PubSub.subscribe('object-added-to-inbox', _addToList);
         PubSub.subscribe('object-removed-from-inbox', _removeFromList);
         PubSub.subscribe('pressed-delete-list', _deleteList)
-        // PubSub.subscribe('todo-edited', _removeFromList)
+        PubSub.subscribe('todo-updated', _updateList);
     
         return {addList, getAllLists, getList}
     }
@@ -196,11 +199,12 @@ const inboxManager = (
             PubSub.publish('object-removed-from-inbox', todoName)
         }
 
-        const updateTodo = function(data, previousName){
-            deleteTodo(previousName)
-            addTodo(data);
-
+        const updateTodo = function(previousName, data){
+            const updatedTodo = Object.assign(new Todo, data); 
+            _inbox.update(previousName, updatedTodo);
+            console.log(_inbox.getContent())
             PubSub.publish('todo-selected', data);
+            PubSub.publish('todo-updated', updatedTodo)
         }
 
         const getFilteredInbox = function(comparerFunction){
@@ -223,4 +227,4 @@ const inboxManager = (
 
 const newTodo = new Todo('juan', 'as;dflajsd;fl', 12, 'top', 'nada', 'default');
 
-export {todoManager, listManager, inboxManager}
+export {listManager, inboxManager}

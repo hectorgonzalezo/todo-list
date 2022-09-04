@@ -174,11 +174,30 @@ const mainTodoListController = (
         const _titleList = document.querySelector('#list-title');
         const _todoContainer = document.querySelector('#todos-container');
         const _todos = _todoContainer.children;
-        const _buttonAddTodo = document.querySelector('#button-add-todo')
+        const _buttonAddTodo = document.querySelector('#button-add-todo');
+        let _currentListInView;
+        let _nameOfSelected;
 
+
+        //this function looks through the DOM list, and if it finds a
+        //todo with a data attribute as the edited one, it keeps the selection
+        //this allows to keep selections, even when changing the date
+        const _keepSelection = function (previousName) {
+            //otherwise, select item indicated by selected argument
+            const containerItems = _todoContainer.children;
+            const itemsArray = Array.from(containerItems);
+            let selectedIndex;
+            itemsArray.forEach((item, i) => {
+                if(item.getAttribute('data') == previousName){
+                    selectedIndex = i;
+                }
+                console.log(item.getAttribute('data'), i )
+            })
+            containerItems.item(selectedIndex).classList.add('selected');
+            }
 
         //update left side div with items from list
-        const _renderList = function (msg, listName = 'Inbox') {
+        const _renderList = function (msg, listName = 'Inbox', previousName) {
             webpage.cleanDiv(_todoContainer);
             let list
             if (listName == 'Inbox' || listName == undefined) {
@@ -191,24 +210,41 @@ const mainTodoListController = (
                 list = listManager.getList(listName);
             }
 
+            _currentListInView = list.getName();
+
             //update title
-            _titleList.innerText = _.capitalize(list.getName());
+            _titleList.innerText = _.capitalize(_currentListInView);
             const listContent = list.getContent();
 
-            //append all content to div
-            for (const todo of listContent) {
-                _renderTodo(todo)
+            //append all of the content to _todoContainer
+            //name is sent to be added as a data attribute
+            for (let i = 0; i < listContent.length; i++){
+                _renderTodo(listContent[i], listContent[i]['name']) 
             }
             //select first element if list isn't empty
             if (list.getContent().length > 0) {
-                _todoContainer.firstElementChild.classList.add('selected');
-                PubSub.publish('todo-selected', listContent[0])
+                if (previousName == undefined){
+                    //if none is selected, choose the first
+                    _todoContainer.firstChild.classList.add('selected');
+                    PubSub.publish('todo-selected', listContent[0])
+                    _nameOfSelected = _currentListInView;
+                } else {
+                    //if there's one already selected
+                    _keepSelection(previousName)
             }
         }
+    }
 
-        const _renderTodo = function (todo) {
+
+        
+
+        const _renderTodo = function (todo, dataAttribute) {
             const wrapper = document.createElement('div');
             wrapper.classList.add('todo');
+            //this will be used to extract _currentIndexOfSelected
+            //which in turn is used by _renderList to determine if there's
+            //an item selected at the moment
+            wrapper.setAttribute('data', dataAttribute)
 
             //create elements
             const checkBox = document.createElement('div');
@@ -225,6 +261,7 @@ const mainTodoListController = (
             wrapper.addEventListener('click', () => {
                 _selectTodo(wrapper)
                 PubSub.publish('todo-selected', todo);
+                _nameOfSelected = wrapper.getAttribute('data')
             })
 
 
@@ -234,7 +271,6 @@ const mainTodoListController = (
             checkBox.addEventListener('click', () =>{
                 todo.done = !todo.done;
                 wrapper.classList.toggle('done');
-                console.log(todo)
         })
         };
 
@@ -266,7 +302,11 @@ const mainTodoListController = (
         });
         PubSub.subscribe('pressed-delete-button', _removeTodo);
         PubSub.subscribe('object-updated', _renderList);
-        PubSub.subscribe('list-removed', _renderList)
+        PubSub.subscribe('list-removed', _renderList);
+        //when a todo is edited, render the same list as currently selected
+        PubSub.subscribe('todo-saved', (msg, previousName) => {
+            _renderList('', _currentListInView, previousName)
+        })
     }
 )();
 
@@ -628,7 +668,7 @@ const mainDetailsController = (
         //updates selected todo
         const _saveTodo = function (previousName) {
             const name = _detailName.value;
-            const date = _detailDate.getValue()
+            const date = new Date(_detailDate.getValue());
             const priority = _detailPriority.getValue();
             const list = _detailList.getValue();
             const notes = _detailNotes.getValue();
@@ -636,10 +676,9 @@ const mainDetailsController = (
             //give the data the format required by inboxManager
             const todoData = {name, date, priority, list, notes};
  
-            //  //add to inbox
-             inboxManager.updateTodo(todoData, previousName);
-
-            // PubSub.publish('object-added-to-inbox', '')
+            //add to inbox
+             inboxManager.updateTodo(previousName, todoData);
+             PubSub.publish('todo-saved', previousName)
         }
 
         
