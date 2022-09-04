@@ -1,4 +1,5 @@
 @import './reset.css';
+/* @import './assets/done-icon.png'; */
 
 :root {
     --color-background: #f0f9ff;
@@ -8,6 +9,7 @@
     --color-dark: #0c4a6e;
     --color-complementary-light: rgb(228, 148, 148);
     --color-complementary-dark: rgb(132, 40, 39);
+    --done-icon: url('./assets/done-icon.png');
 }
 
 /* *{
@@ -251,8 +253,6 @@ body .sidebar-list,
 }
 
 
-
-
 .todo {
     display: grid;
     grid-template-columns: 1fr 5fr;
@@ -260,8 +260,8 @@ body .sidebar-list,
     padding: 5px;
     align-items: center;
     border-radius: 0.5rem;
+    position: relative;
 }
-
 .todo > div,
 .todo > h3 {
     grid-row: 1 / 2;
@@ -282,15 +282,39 @@ body .sidebar-list,
     outline: solid 1px var(--color-dark);
 }
 
-.check-box{
-    background-color: red;
-    width: 24px;
-    height: 24px;
+
+.todo.done{
+    background-color: var(--color-light);
+    outline: none;
 }
 
+.todo.done.selected{
+    background-color: var(--color-medium-dark);
+}
 
+.todo.done > h3 {
+    text-decoration: line-through;
+}
 
+.check-box{
+    background-color: var(--color-light);
+    width: 24px;
+    height: 24px;
+} 
 
+.todo.done > .check-box {
+    background-color: var(--color-medium-light);
+}
+
+.todo.done > .check-box::after{
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+    content: "";
+    background: var(--done-icon) no-repeat 0 0;
+    background-size: 100%;
+}
 
 #details-display{
     display: grid;

@@ -226,6 +226,16 @@ const mainTodoListController = (
                 _selectTodo(wrapper)
                 PubSub.publish('todo-selected', todo);
             })
+
+
+            //pressing on the checkbox updates the todo to be done
+            //this should cross out the text and put the selected todo
+            //at the bottom
+            checkBox.addEventListener('click', () =>{
+                todo.done = !todo.done;
+                wrapper.classList.toggle('done');
+                console.log(todo)
+        })
         };
 
         const _selectTodo = function (todoWrapper) {

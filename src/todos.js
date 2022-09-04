@@ -2,13 +2,14 @@ import _ from 'lodash';
 import {compareAsc} from 'date-fns'
 //todo class
 class Todo {
-    constructor(name, notes, date, priority, list =''){
+    constructor(name, notes, date, priority, list ='', done=false){
         this.name = name;
         this.notes = notes;
         this.date = date;
         this.date = date;
         this.priority = priority;
         this.list = list;
+        this.done = done;
     }
 
     
