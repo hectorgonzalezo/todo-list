@@ -165,7 +165,7 @@ const sideBarController = (
             })
         })
 
-        PubSub.subscribe('webpage-loaded', _populateInitialLists);
+        PubSub.subscribe('inbox-updated',_populateInitialLists);
     }
 )();
 
@@ -352,8 +352,6 @@ const selectorPopulator = (
             //an option is the html element <option>
             //extract lists
             const lists = listManager.getAllLists();
-
-
 
             _populate(selector, lists, previousValue);
         }
@@ -683,7 +681,7 @@ const mainDetailsController = (
         //updates selected todo
         const _saveTodo = function (previousName) {
             const name = _detailName.value;
-            const date = new Date(_detailDate.getValue());
+            const date = _detailDate.getValue();
             const priority = _detailPriority.getValue();
             const list = _detailList.getValue();
             const notes = _detailNotes.getValue();

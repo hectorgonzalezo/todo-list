@@ -46,7 +46,6 @@ const List = function(name){
     }
 
     const add = function(todo){
-        console.log(todo)
         _content.push(todo);
     }
 
@@ -132,29 +131,6 @@ const listManager = (
             } 
         }
         
-        addList('', 'web');
-
-        const _dummyObj = new Todo(
-            'Terminar esta madre!',
-            'Va a tardar mas',
-            new Date('2022/09/17'),
-            'high',
-            'web'
-        );
-
-        const _anotherDummyObj = new Todo(
-            'Algun otro',
-            'La siguiente semana',
-            new Date('2022/09/16'),
-            'low',
-            'web'
-        );
-
-        const web = new List('web');
-
-        _lists['web'].add(_dummyObj);
-        _lists['web'].add(_anotherDummyObj);
-
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('object-added-to-inbox', _addToList);
         PubSub.subscribe('object-removed-from-inbox', _removeFromList);
@@ -167,33 +143,15 @@ const listManager = (
 
 const inboxManager = (
     function() {
-        const _dummyObj = new Todo(
-            'Finish Project',
-            'This should take no more than 5 days.',
-            new Date('2022/09/03'),
-            'high',
-            'asfas',
-            true
-        );
-
-        const _anotherDummyObj = new Todo(
-            'Otro Proyecto',
-            'Va a tardar mas',
-            new Date('2022/09/04'),
-            'low'
-        )
-
         const _inbox = new Inbox();
 
-        _inbox.add(_dummyObj)
-        _inbox.add(_anotherDummyObj)
 
         const getInbox = function(){
             return _inbox
         }
 
         const addTodo = function(data) {
-            const newTodo = Object.assign(new Todo, data);
+            const newTodo = Object.assign(new Todo, _format(data));
             _inbox.add(newTodo);
             PubSub.publish('object-added-to-inbox', newTodo);
 
@@ -233,9 +191,22 @@ const inboxManager = (
             return filteredList
         }
 
-        const _updateStorage = function(){
+        const _updateFromStorage = function(msg, todosArray){
+            todosArray.forEach((todo) => {
+
+                addTodo(todo)
+            });
             PubSub.publish('inbox-updated', _inbox.getContent())
         }
+        
+        //gives the correct format to date before passing it to add
+        const _format = function(todoData){
+            const newDate = new Date(todoData['date'])
+            todoData['date'] = newDate
+            return todoData
+        }
+            
+        PubSub.subscribe('todos-fetched-from-storage', _updateFromStorage)
 
     return {getInbox, addTodo, deleteTodo, updateTodo, getFilteredInbox}
     }

@@ -30,11 +30,11 @@ const storage = (function () {
         //if there's local storage available, store any todos made by user
         if (_storageAvailable('localStorage')) {
             //if there's previous data on storage, display it
-            if (!localStorage.getItem('inbox')) {
-                displayDummyTodos();
+            if (localStorage.length > 0) {
+                const storedTodos = getAll()
+                PubSub.publish('todos-fetched-from-storage', storedTodos)
             } else {
-                console.log(getAll())
-
+                displayDummyTodos();
             }
 
         }
@@ -43,6 +43,7 @@ const storage = (function () {
 
     const displayDummyTodos = function () {
 
+                // console.log('dmasdf')
     }
 
     const add = function (todo){
@@ -60,13 +61,23 @@ const storage = (function () {
     }
 
     const getAll = function(){
-        return {...localStorage}
+        let storedTodosNames =[];
+        //iterate trough localStorage and extract the names of each Todo stored
+        for (let i = 0; i < localStorage.length; i++){
+            storedTodosNames.push(localStorage.key(i));
+        }
+        //get the todos themselves from the names
+        const storedTodos = storedTodosNames.map((name) => {
+            //convert each item back to an object.
+            return JSON.parse(localStorage.getItem(name));
+        })
+        return Array.from(storedTodos)
     }
 
     PubSub.subscribe('webpage-loaded', _startStorage);
 
 
-    return {getAll,add, remove, update}
+    return {getAll, add, remove, update}
 }
 )();
 
