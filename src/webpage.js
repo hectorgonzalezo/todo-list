@@ -1,7 +1,7 @@
 import PubSub from "pubsub-js";
 import deleteIconUrl from './assets/delete-icon.png';
 import { listManager, inboxManager } from "./todos.js";
-import {isToday, isThisWeek, isPast, format, formatDistanceToNow} from 'date-fns';
+import {isToday, isThisWeek, isPast, format, formatDistanceToNow, formatDistance} from 'date-fns';
 import deleteIconBlackUrl from './assets/delete-icon-black.png';
 
 const webpage = (
@@ -214,7 +214,7 @@ const mainTodoListController = (
 
             //update title
             _titleList.innerText = _.capitalize(_currentListInView);
-            const listContent = list.getContent();
+            const listContent = list.getContent();``
 
             //append all of the content to _todoContainer
             //name is sent to be added as a data attribute
@@ -235,9 +235,7 @@ const mainTodoListController = (
         }
     }
 
-
         
-
         const _renderTodo = function (todo, dataAttribute) {
             const wrapper = document.createElement('div');
             wrapper.classList.add('todo');
@@ -256,6 +254,13 @@ const mainTodoListController = (
 
             wrapper.append(checkBox, todoName, todoList);
             _todoContainer.append(wrapper);
+            
+            //if its done, add the corresponding class to wrapper
+            if(todo.done == true){
+                wrapper.classList.add('done')
+            } else if(isPast(todo.date)){//if it isn't done but dueDate is past
+                wrapper.classList.add('past');
+            }
 
             //add eventListener that selects wrapper
             wrapper.addEventListener('click', () => {
@@ -697,7 +702,7 @@ const mainDetailsController = (
             //date Value
             _detailDate.changeValue(
                 `${format((dueDate), "dd MMMM, yyyy")} 
-                ${formatDistanceToNow(dueDate)} left`);
+                ${formatDistance(dueDate, Date.now(), {addSuffix:true})}`);
             _detailPriority.changeValue(todo['priority']);
             _detailList.changeValue(todo['list']);
             _detailNotes.changeValue(todo['notes']);

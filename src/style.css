@@ -1,5 +1,4 @@
 @import './reset.css';
-/* @import './assets/done-icon.png'; */
 
 :root {
     --color-background: #f0f9ff;
@@ -10,10 +9,11 @@
     --color-complementary-light: rgb(228, 148, 148);
     --color-complementary-dark: rgb(132, 40, 39);
     --done-icon: url('./assets/done-icon.png');
+    --past-icon: url('./assets/cross-icon.png')
 }
 
 /* *{
-    outline: red dashed;
+    outline: red dashed;`
 } */
 
 body button {
@@ -296,6 +296,9 @@ body .sidebar-list,
     text-decoration: line-through;
 }
 
+
+
+
 .check-box{
     background-color: var(--color-light);
     width: 24px;
@@ -314,6 +317,13 @@ body .sidebar-list,
     content: "";
     background: var(--done-icon) no-repeat 0 0;
     background-size: 100%;
+}
+
+/* when a todo dueDate is past */
+
+
+.todo.past:not(.done) {
+    background-color: var(--color-complementary-light);
 }
 
 #details-display{

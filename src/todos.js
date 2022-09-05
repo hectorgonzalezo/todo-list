@@ -169,7 +169,8 @@ const inboxManager = (
             'This should take no more than 5 days.',
             new Date('2022/09/03'),
             'high',
-            'asfas'
+            'asfas',
+            true
         );
 
         const _anotherDummyObj = new Todo(
@@ -202,7 +203,6 @@ const inboxManager = (
         const updateTodo = function(previousName, data){
             const updatedTodo = Object.assign(new Todo, data); 
             _inbox.update(previousName, updatedTodo);
-            console.log(_inbox.getContent())
             PubSub.publish('todo-selected', data);
             PubSub.publish('todo-updated', updatedTodo)
         }
