@@ -110,9 +110,13 @@ const listManager = (
 
         const _addToList = function(msg, todo){
             const todoListName = todo['list'];
-
             //if todo list exists, add it there
             if (_lists.hasOwnProperty(todoListName)){
+                _lists[todoListName].add(todo)
+            } else if(todoListName != ''){
+                //if listName doesnt exist and isn't empty option, create it
+                addList('', todoListName)
+                //and add todo
                 _lists[todoListName].add(todo)
             }
         }
@@ -164,17 +168,18 @@ const inboxManager = (
             PubSub.publish('object-removed-from-inbox', todoName)
 
             //delete form local storage
-            storage.delete(todoName)
+            storage.remove(todoName)
         }
 
         const updateTodo = function(previousName, data){
-            const updatedTodo = Object.assign(new Todo, data); 
+            const updatedTodo = Object.assign(new Todo, _format(data)); 
             _inbox.update(previousName, updatedTodo);
             PubSub.publish('todo-selected', data);
             PubSub.publish('todo-updated', updatedTodo)
 
             //update local storage
-            storage.update(previousName, updateTodo)
+            storage.update(previousName, updatedTodo)
+            PubSub.publish('inbox-updated', _inbox.getContent());
         }
 
         const getFilteredInbox = function(comparerFunction, title){
@@ -196,7 +201,7 @@ const inboxManager = (
 
                 addTodo(todo)
             });
-            PubSub.publish('inbox-updated', _inbox.getContent())
+            PubSub.publish('inbox-initialized', _inbox.getContent())
         }
         
         //gives the correct format to date before passing it to add

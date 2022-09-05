@@ -76,7 +76,6 @@ const storage = (function () {
 
     PubSub.subscribe('webpage-loaded', _startStorage);
 
-
     return {getAll, add, remove, update}
 }
 )();

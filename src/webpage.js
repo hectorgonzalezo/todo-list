@@ -61,7 +61,7 @@ const sideBarController = (
             _removeSelectedClasses();
 
             field.classList.add('selected')
-            PubSub.publish('list-clicked', name);
+            // PubSub.publish('list-clicked', name);
 
             //add delete icon to list field
             const deleteIcon = document.createElement('img');
@@ -165,7 +165,8 @@ const sideBarController = (
             })
         })
 
-        PubSub.subscribe('inbox-updated',_populateInitialLists);
+        PubSub.subscribe('inbox-initialized',_populateInitialLists);
+        // PubSub.subscribe('inbox-updated', _updateLists)
     }
 )();
 
@@ -197,6 +198,7 @@ const mainTodoListController = (
 
         //update left side div with items from list
         const _renderList = function (msg, listName = 'Inbox', previousName) {
+            console.log({msg, listName})
             webpage.cleanDiv(_todoContainer);
             let list
             if (listName == 'Inbox' || listName == undefined) {
@@ -209,12 +211,12 @@ const mainTodoListController = (
                 list = listManager.getList(listName);
             }
 
-
             _currentListInView = list.getName();
 
             //update title
             _titleList.innerText = _.capitalize(_currentListInView);
             const listContent = list.getContent();
+            console.log(listContent)
 
             //append all of the content to _todoContainer
             //name is sent to be added as a data attribute
@@ -293,20 +295,16 @@ const mainTodoListController = (
             selectedTodo.remove();
 
             _selectTodo(_todoContainer.firstChild)
-            _renderList();
+            _renderList(_currentListInView);
         }
 
         _buttonAddTodo.addEventListener('click', () => {
             PubSub.publish('pressed-add-button');
         })
 
-        PubSub.subscribe('webpage-loaded', _renderList);
+        PubSub.subscribe('inbox-initialized', _renderList);
         PubSub.subscribe('sidebar-item-selected', _renderList);
-        PubSub.subscribe('object-added-to-inbox', () => {
-            _renderList()
-        });
         PubSub.subscribe('pressed-delete-button', _removeTodo);
-        PubSub.subscribe('object-updated', _renderList);
         PubSub.subscribe('list-removed', _renderList);
         //when a todo is edited, render the same list as currently selected
         PubSub.subscribe('todo-saved', (msg, previousName) => {
@@ -691,7 +689,7 @@ const mainDetailsController = (
  
             //add to inbox
              inboxManager.updateTodo(previousName, todoData);
-             PubSub.publish('todo-saved', previousName)
+             PubSub.publish('todo-saved', previousName);
         }
 
         
