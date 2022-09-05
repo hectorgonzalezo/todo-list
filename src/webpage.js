@@ -191,7 +191,6 @@ const mainTodoListController = (
                 if(item.getAttribute('data') == previousName){
                     selectedIndex = i;
                 }
-                console.log(item.getAttribute('data'), i )
             })
             containerItems.item(selectedIndex).classList.add('selected');
             }
@@ -348,24 +347,27 @@ const popupFormController = (
 //used by popup and todo details
 const selectorPopulator = (
     function () {
-        const populateLists = function(selector){
+        const populateLists = function(selector, previousValue){
             //an option is the html element <option>
             //extract lists
             const lists = listManager.getAllLists();
 
-            _populate(selector, lists)
+            //add empty option to list
+            lists[''] = inboxManager.getInbox();
+
+            _populate(selector, lists, previousValue);
         }
 
-        const populatePriorities = function(selector){
+        const populatePriorities = function(selector, previousValue){
             //an option is the html element <option>
             //extract lists
             const priorities = {'High':'High', 
             'Normal':'Normal', 
             'Low': 'low'};
-            _populate(selector, priorities)
+            _populate(selector, priorities, previousValue)
         }
 
-        const _populate = function(selector, array){
+        const _populate = function(selector, array, previousValue){
             const existingOptions = Array.from(selector.children);
             //extract text from existingSelectors
             const optionsText = existingOptions.map((option) => {
@@ -380,6 +382,11 @@ const selectorPopulator = (
                     newOption.setAttribute('data', element);
                     newOption.innerText = element;
                     selector.append(newOption)
+                    
+                    //select same value as todo
+                    if (element == previousValue){
+                        newOption.setAttribute('selected','')
+                    }
                 }
             }
         }
@@ -477,15 +484,15 @@ const DetailElement = function (name, type = 'p') {
 }
 
 //inherits from DetailElement
-const DetailSelector = function(name, priority){
+const DetailSelector = function(name, previousValue, priority){
     const title = document.createElement('h2');
     const {appendTo, getElement} = DetailElement(name, 'select');
 
     const changeValue = function(){
         if (priority == true){
-            selectorPopulator.populatePriorities(this.getElement())
+            selectorPopulator.populatePriorities(this.getElement(), previousValue)
         } else {
-        selectorPopulator.populateLists(this.getElement())
+        selectorPopulator.populateLists(this.getElement(), previousValue)
         }
     }
 
@@ -573,6 +580,9 @@ const mainDetailsController = (
             let _previousDate = _detailDate.getValue();
             _previousDate = new Date(_previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
             _previousDate = format(_previousDate, 'yyy-MM-dd');
+            
+            const _previousPriority = _detailPriority.getValue();
+            const _previousList = _detailList.getValue();
             const _previousNotes = _detailNotes.getValue();
             
             webpage.cleanDiv(container);
@@ -589,10 +599,10 @@ const mainDetailsController = (
             _detailDate.changeValue(_previousDate);
             _detailDate.appendTo(container);
 
-            _detailPriority = new DetailSelector('priority', true);
+            _detailPriority = new DetailSelector('priority', _previousPriority, true);
             _detailPriority.appendTo(container);
 
-            _detailList = new DetailSelector('list');
+            _detailList = new DetailSelector('list', _previousList);
             _detailList.appendTo(container)
             
 

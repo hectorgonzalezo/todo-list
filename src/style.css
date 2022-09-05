@@ -1,5 +1,14 @@
 @import './reset.css';
 
+@font-face{
+    font-family: "lora";
+    src: url('./assets/nobile-regular-webfont.woff2') format('woff2'),
+    url('./assets/nobile-regular-webfont.woff')  format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+
 :root {
     --color-background: #f0f9ff;
     --color-light: #e0f2fe;
@@ -9,7 +18,9 @@
     --color-complementary-light: rgb(228, 148, 148);
     --color-complementary-dark: rgb(132, 40, 39);
     --done-icon: url('./assets/done-icon.png');
-    --past-icon: url('./assets/cross-icon.png')
+    --past-icon: url('./assets/cross-icon.png');
+    font-family: "lora" serif;
+    
 }
 
 /* *{

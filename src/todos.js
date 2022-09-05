@@ -58,12 +58,14 @@ const List = function(name){
         } )
     }
 
-    const update = function(name, data){
+    const update = function(name, updatedTodo){
         //find todo index and update information
         const indexOfTodoToUpdate = _content.findIndex((todo) => todo['name'] == name)
         //if it found one, update it
         if (indexOfTodoToUpdate >= 0){
-        _content[indexOfTodoToUpdate] = data;
+            //keep 'done' value
+            updatedTodo['done'] = _content[indexOfTodoToUpdate]['done'];
+            _content[indexOfTodoToUpdate] = updatedTodo;
         }
     }
 
@@ -201,6 +203,7 @@ const inboxManager = (
         }
 
         const updateTodo = function(previousName, data){
+            console.log(_inbox.getContent())
             const updatedTodo = Object.assign(new Todo, data); 
             _inbox.update(previousName, updatedTodo);
             PubSub.publish('todo-selected', data);
