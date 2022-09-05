@@ -200,7 +200,7 @@ const mainTodoListController = (
         const _renderList = function (msg, listName = 'Inbox', previousName) {
             webpage.cleanDiv(_todoContainer);
             let list
-            if (listName == 'Inbox' || listName == undefined) {
+            if (listName == 'Inbox' || listName == undefined || listName == '') {
                 list = inboxManager.getInbox()
             } else if(listName=='Today'){
                 list = inboxManager.getFilteredInbox(isToday, 'Today');
@@ -307,7 +307,10 @@ const mainTodoListController = (
         //when a todo is edited, render the same list as currently selected
         PubSub.subscribe('todo-saved', (msg, previousName) => {
             _renderList('', _currentListInView, previousName)
-        })
+        });
+        PubSub.subscribe('object-added-to-inbox', (msg, todo) => {
+            _renderList(msg, todo['list'])}
+            )
     }
 )();
 
@@ -349,7 +352,7 @@ const selectorPopulator = (
             let lists = listManager.getAllLists();
 
             //add empty value
-            lists[''] = inboxManager.getInbox();
+            lists[''] = 'Inbox'
             
             _populate(selector, lists, previousValue);
         }

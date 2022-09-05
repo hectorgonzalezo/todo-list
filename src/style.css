@@ -239,12 +239,17 @@ body .sidebar-list,
     display: flex;
     flex-direction: column;
     gap: 3px;
+    overflow: scroll;
 }
 
 #details-container{
     grid-column: 2 / 3;
     grid-row: 2 / -1;
 
+}
+
+#area-add-button{
+    margin-top: auto;
 }
 
 #todo-area button{
