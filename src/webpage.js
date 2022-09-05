@@ -198,7 +198,6 @@ const mainTodoListController = (
 
         //update left side div with items from list
         const _renderList = function (msg, listName = 'Inbox', previousName) {
-            console.log({msg, listName})
             webpage.cleanDiv(_todoContainer);
             let list
             if (listName == 'Inbox' || listName == undefined) {
@@ -216,7 +215,6 @@ const mainTodoListController = (
             //update title
             _titleList.innerText = _.capitalize(_currentListInView);
             const listContent = list.getContent();
-            console.log(listContent)
 
             //append all of the content to _todoContainer
             //name is sent to be added as a data attribute
@@ -347,16 +345,17 @@ const popupFormController = (
 const selectorPopulator = (
     function () {
         const populateLists = function(selector, previousValue){
-            //an option is the html element <option>
             //extract lists
-            const lists = listManager.getAllLists();
+            let lists = listManager.getAllLists();
 
+            //add empty value
+            lists[''] = inboxManager.getInbox();
+            
             _populate(selector, lists, previousValue);
         }
 
         const populatePriorities = function(selector, previousValue){
-            //an option is the html element <option>
-            //extract lists
+            //priority lists
             const priorities = {'High':'High', 
             'Normal':'Normal', 
             'Low': 'low'};

@@ -105,6 +105,14 @@ const listManager = (
         }
 
         const _deleteList = function(msg, name){
+            const listToDelete = _lists[name].getContent();
+            //change list value and store in memory
+            for (const todo of listToDelete){
+                todo['list'] = ''
+                storage.update(todo['name'],  todo)
+            }
+
+            //delete from list
             delete _lists[name]
         }
 
@@ -131,6 +139,7 @@ const listManager = (
         const _updateList = function (msg, updatedTodo){
             for (const listName in _lists) {
                 const list = _lists[listName];
+                console.log(list)
                 list.update(updatedTodo)
             } 
         }
