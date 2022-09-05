@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import {compareAsc} from 'date-fns'
+import {compareAsc, isToday} from 'date-fns';
+import storage from './storage.js'
 //todo class
 class Todo {
     constructor(name, notes, date, priority, list ='', done=false){
@@ -45,6 +46,7 @@ const List = function(name){
     }
 
     const add = function(todo){
+        console.log(todo)
         _content.push(todo);
     }
 
@@ -84,53 +86,52 @@ const Inbox = function (){
 const listManager = (
     function () {
        
-        let lists = {}
+        let _lists = {}
 
 
         const addList = function (msg, listName){
-            lists[listName] = List(listName);
+            _lists[listName] = List(listName);
         }
 
         const getAllLists = function(){
-            return lists
+            return _lists
         }
 
         const getList = function(name){
-            if (lists.hasOwnProperty(name)){
-            return lists[name]
+            if (_lists.hasOwnProperty(name)){
+            return _lists[name]
             } else {
                 return inboxManager.getInbox()
             }
         }
 
         const _deleteList = function(msg, name){
-            delete lists[name]
+            delete _lists[name]
         }
 
         const _addToList = function(msg, todo){
             const todoListName = todo['list'];
 
             //if todo list exists, add it there
-            if (lists.hasOwnProperty(todoListName)){
-                lists[todoListName].add(todo)
+            if (_lists.hasOwnProperty(todoListName)){
+                _lists[todoListName].add(todo)
             }
-
         }
 
         const _removeFromList = function (msg, todoName) {
-            for (const listName in lists) {
-                const list = lists[listName];
+            for (const listName in _lists) {
+                const list = _lists[listName];
                 list.remove(todoName)
             }
         }
 
         const _updateList = function (msg, updatedTodo){
-            for (const listName in lists) {
-                const list = lists[listName];
+            for (const listName in _lists) {
+                const list = _lists[listName];
                 list.update(updatedTodo)
             } 
         }
-
+        
         addList('', 'web');
 
         const _dummyObj = new Todo(
@@ -151,8 +152,8 @@ const listManager = (
 
         const web = new List('web');
 
-        lists['web'].add(_dummyObj);
-        lists['web'].add(_anotherDummyObj);
+        _lists['web'].add(_dummyObj);
+        _lists['web'].add(_anotherDummyObj);
 
         PubSub.subscribe('pressed-add-list', addList);
         PubSub.subscribe('object-added-to-inbox', _addToList);
@@ -195,22 +196,30 @@ const inboxManager = (
             const newTodo = Object.assign(new Todo, data);
             _inbox.add(newTodo);
             PubSub.publish('object-added-to-inbox', newTodo);
+
+            //add to local storage
+            storage.add(newTodo);
         }
 
         const deleteTodo = function(todoName){
             _inbox.remove(todoName)
             PubSub.publish('object-removed-from-inbox', todoName)
+
+            //delete form local storage
+            storage.delete(todoName)
         }
 
         const updateTodo = function(previousName, data){
-            console.log(_inbox.getContent())
             const updatedTodo = Object.assign(new Todo, data); 
             _inbox.update(previousName, updatedTodo);
             PubSub.publish('todo-selected', data);
             PubSub.publish('todo-updated', updatedTodo)
+
+            //update local storage
+            storage.update(previousName, updateTodo)
         }
 
-        const getFilteredInbox = function(comparerFunction){
+        const getFilteredInbox = function(comparerFunction, title){
             let inboxArray = _inbox.getContent();
             //filter array and only get today's results
             inboxArray = inboxArray.filter((todo) => {
@@ -218,16 +227,19 @@ const inboxManager = (
             })
 
             //make new list and add array to it
-            const filteredList = new List('Today');
+            const filteredList = new List(title);
             filteredList.from(inboxArray);
 
             return filteredList
+        }
+
+        const _updateStorage = function(){
+            PubSub.publish('inbox-updated', _inbox.getContent())
         }
 
     return {getInbox, addTodo, deleteTodo, updateTodo, getFilteredInbox}
     }
 )();
 
-const newTodo = new Todo('juan', 'as;dflajsd;fl', 12, 'top', 'nada', 'default');
 
 export {listManager, inboxManager}

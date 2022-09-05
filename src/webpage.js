@@ -202,23 +202,24 @@ const mainTodoListController = (
             if (listName == 'Inbox' || listName == undefined) {
                 list = inboxManager.getInbox()
             } else if(listName=='Today'){
-                list = inboxManager.getFilteredInbox(isToday);
+                list = inboxManager.getFilteredInbox(isToday, 'Today');
             } else if (listName == 'This week'){ 
-                list = inboxManager.getFilteredInbox(isThisWeek);
+                list = inboxManager.getFilteredInbox(isThisWeek, 'This Week');
             } else {
                 list = listManager.getList(listName);
             }
+
 
             _currentListInView = list.getName();
 
             //update title
             _titleList.innerText = _.capitalize(_currentListInView);
-            const listContent = list.getContent();``
+            const listContent = list.getContent();
 
             //append all of the content to _todoContainer
             //name is sent to be added as a data attribute
-            for (let i = 0; i < listContent.length; i++){
-                _renderTodo(listContent[i], listContent[i]['name']) 
+            for (const todo of listContent){
+                _renderTodo(todo, todo['name'])
             }
             //select first element if list isn't empty
             if (list.getContent().length > 0) {
@@ -352,8 +353,7 @@ const selectorPopulator = (
             //extract lists
             const lists = listManager.getAllLists();
 
-            //add empty option to list
-            lists[''] = inboxManager.getInbox();
+
 
             _populate(selector, lists, previousValue);
         }
@@ -512,7 +512,7 @@ const DetailDate = function(name){
 
     //override inherited appendTo metod, so that value can be changed on demand.
     const appendTo = function (parent) {
-        title.innerText = 'Date :'
+        title.innerText = 'Date:'
         const info = getElement();
         info.setAttribute('id', `detail-date`);
         parent.append(title, info);

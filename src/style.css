@@ -19,8 +19,7 @@
     --color-complementary-dark: rgb(132, 40, 39);
     --done-icon: url('./assets/done-icon.png');
     --past-icon: url('./assets/cross-icon.png');
-    font-family: "lora" serif;
-    
+    font-family: "lora";
 }
 
 /* *{
