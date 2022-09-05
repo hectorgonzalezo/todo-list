@@ -563,6 +563,7 @@ const mainDetailsController = (
             _detailNotes = new DetailElement('notes', 'textarea');
             _detailNotes.appendTo(container);
             _detailNotes.getElement().setAttribute('readonly','')
+            _detailNotes.getElement().classList.add('inactive')
         }
 
         const _populateEditDetails = function (){

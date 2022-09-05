@@ -16,7 +16,7 @@
     --color-medium-dark: #38bdf8;
     --color-dark: #0c4a6e;
     --color-complementary-light: rgb(228, 148, 148);
-    --color-complementary-dark: rgb(132, 40, 39);
+    --color-complementary-dark: rgb(4, 58, 7);
     --done-icon: url('./assets/done-icon.png');
     --past-icon: url('./assets/cross-icon.png');
     font-family: "lora";
@@ -31,6 +31,7 @@ body button {
     border-radius: 0.8rem;
     box-shadow: 2px 2px 4px var(--color-dark);
     padding: 5px;
+    border: none;
 }
 
 
@@ -127,6 +128,10 @@ main {
     gap: 20px;
     min-width: 80px;
     width: auto;
+}
+
+#sidebar  button{
+    border: none;
 }
 
 #lists-area{
@@ -330,8 +335,6 @@ body .sidebar-list,
 }
 
 /* when a todo dueDate is past */
-
-
 .todo.past:not(.done) {
     background-color: var(--color-complementary-light);
 }
@@ -343,6 +346,8 @@ body .sidebar-list,
     height: 100%;
 
 }
+
+
 #details-display > *:first-child {
     grid-column: 1 / -1;
 }
@@ -362,9 +367,30 @@ body .sidebar-list,
 }
 
 
+#details-display > p,
+#details-display > textarea{
+    font-weight: bolder;
+    font-style: italic;
+    font-size: 1.2rem;
+    color:  var(--color-complementary2-dark)
+}
+
+
 #details-display input,
 #details-display select{
     height: 50%;
+}
+
+#detail-notes.inactive{
+    background-color: var(--color-medium-light);
+    box-shadow: none;
+}
+
+
+#detail-notes.inactive:hover {
+    cursor:auto;
+    background-color: var(--color-medium-light);
+    outline: none;
 }
 
 
