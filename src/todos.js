@@ -1,5 +1,7 @@
 import { compareAsc } from "date-fns";
+import PubSub from "pubsub-js";
 import storage from "./storage";
+
 // todo class
 class Todo {
   constructor(name, notes, date, priority, list = "", done = false) {
@@ -22,46 +24,47 @@ class Todo {
 
 const List = function (name) {
   // start with empty content if not provided
-  let _content = [];
-  const contenta = 1234123;
+  let content = [];
 
-  const _filterContent = function () {
-    _content = _content.sort((a, b) => compareAsc(a.date, b.date));
-    return _content;
-  };
+  function filterContent() {
+    content = content.sort((a, b) => compareAsc(a.date, b.date));
+    return content;
+  }
 
-  const length = function () {
-    return Object.keys(_content).length;
-  };
+  function length() {
+    return Object.keys(content).length;
+  }
 
-  const getName = function () {
+  function getName() {
     return name;
-  };
+  }
 
-  const getContent = function () {
-    return _filterContent();
-  };
+  function getContent() {
+    return filterContent();
+  }
 
-  const add = function (todo) {
-    _content.push(todo);
-  };
+  function add(todo) {
+    content.push(todo);
+  }
 
-  const from = function (array) {
-    _content = array;
-  };
+  function from(array) {
+    content = array;
+  }
 
-  const remove = function (name) {
-    _content = _content.filter((todo) => todo.name != name);
-  };
+  function remove(todoName) {
+    content = content.filter((todo) => todo.name !== todoName);
+  }
 
-  const update = function (name, updatedTodo) {
+  const update = function (todoName, updatedTodo) {
     // find todo index and update information
-    const indexOfTodoToUpdate = _content.findIndex((todo) => todo.name == name);
+    const indexOfTodoToUpdate = content.findIndex(
+      (todo) => todo.name === todoName
+    );
     // if it found one, update it
     if (indexOfTodoToUpdate >= 0) {
       // keep 'done' value
-      updatedTodo.done = _content[indexOfTodoToUpdate].done;
-      _content[indexOfTodoToUpdate] = updatedTodo;
+      updatedTodo.done = content[indexOfTodoToUpdate].done;
+      content[indexOfTodoToUpdate] = updatedTodo;
     }
   };
 
@@ -77,82 +80,82 @@ const Inbox = function () {
 };
 
 const listManager = (function () {
-  const _lists = {};
+  const lists = {};
 
-  const addList = function (msg, listName) {
-    _lists[listName] = List(listName);
-  };
+  function addList(msg, listName) {
+    lists[listName] = List(listName);
+  }
 
-  const getAllLists = function () {
-    return _lists;
-  };
+  function getAllLists() {
+    return lists;
+  }
 
-  const getList = function (name) {
-    if (_lists.hasOwnProperty(name)) {
-      return _lists[name];
+  function getList(name) {
+    if (Object.prototype.hasOwnProperty.call(lists, name)) {
+      return lists[name];
     }
     return inboxManager.getInbox();
-  };
+  }
 
-  const _deleteList = function (msg, name) {
-    const listToDelete = _lists[name].getContent();
+  function deleteList(msg, name) {
+    const listToDelete = lists[name].getContent();
     // change list value and store in memory
-    for (const todo of listToDelete) {
+    listToDelete.forEach((todo) => {
       todo.list = "";
       storage.update(todo.name, todo);
-    }
+    });
 
     // delete from list
-    delete _lists[name];
-  };
+    delete lists[name];
+  }
 
-  const _addToList = function (msg, todo) {
+  function addToList(msg, todo) {
     const todoListName = todo.list;
     // if todo list exists, add it there
-    if (_lists.hasOwnProperty(todoListName)) {
-      _lists[todoListName].add(todo);
-    } else if (todoListName != "") {
+    if (Object.prototype.hasOwnProperty.call(lists, todoListName)) {
+      lists[todoListName].add(todo);
+    } else if (todoListName !== "") {
       // if listName doesnt exist and isn't empty option, create it
       addList("", todoListName);
       // and add todo
-      _lists[todoListName].add(todo);
+      lists[todoListName].add(todo);
     }
-  };
+  }
 
-  const _removeFromList = function (msg, todoName) {
-    for (const listName in _lists) {
-      const list = _lists[listName];
+  function removeFromList(msg, todoName) {
+    for (const listName in lists) {
+      const list = lists[listName];
       list.remove(todoName);
     }
-  };
+  }
 
-  const _updateList = function (msg, updatedTodo) {
-    for (const listName in _lists) {
-      const list = _lists[listName];
+  function updateList(msg, updatedTodo) {
+    for (const listName in lists) {
+      const list = lists[listName];
       console.log(list);
       list.update(updatedTodo);
     }
-  };
+  }
 
   PubSub.subscribe("pressed-add-list", addList);
-  PubSub.subscribe("object-added-to-inbox", _addToList);
-  PubSub.subscribe("object-removed-from-inbox", _removeFromList);
-  PubSub.subscribe("pressed-delete-list", _deleteList);
-  PubSub.subscribe("todo-updated", _updateList);
+  PubSub.subscribe("object-added-to-inbox", addToList);
+  PubSub.subscribe("object-removed-from-inbox", removeFromList);
+  PubSub.subscribe("pressed-delete-list", deleteList);
+  PubSub.subscribe("todo-updated", updateList);
 
   return { addList, getAllLists, getList };
 })();
 
 const inboxManager = (function () {
-  const _inbox = new Inbox();
+  const inbox = new Inbox();
 
   const getInbox = function () {
-    return _inbox;
+    return inbox;
   };
 
   const addTodo = function (data) {
-    const newTodo = Object.assign(new Todo(), _format(data));
-    _inbox.add(newTodo);
+    const newTodo = Object.assign(new Todo(), format(data));
+    inbox.add(newTodo);
     PubSub.publish("object-added-to-inbox", newTodo);
 
     // add to local storage
@@ -160,7 +163,7 @@ const inboxManager = (function () {
   };
 
   const deleteTodo = function (todoName) {
-    _inbox.remove(todoName);
+    inbox.remove(todoName);
     PubSub.publish("object-removed-from-inbox", todoName);
 
     // delete form local storage
@@ -168,18 +171,18 @@ const inboxManager = (function () {
   };
 
   const updateTodo = function (previousName, data) {
-    const updatedTodo = Object.assign(new Todo(), _format(data));
-    _inbox.update(previousName, updatedTodo);
+    const updatedTodo = Object.assign(new Todo(), format(data));
+    inbox.update(previousName, updatedTodo);
     PubSub.publish("todo-selected", data);
     PubSub.publish("todo-updated", updatedTodo);
 
     // update local storage
     storage.update(previousName, updatedTodo);
-    PubSub.publish("inbox-updated", _inbox.getContent());
+    PubSub.publish("inbox-updated", inbox.getContent());
   };
 
   const getFilteredInbox = function (comparerFunction, title) {
-    let inboxArray = _inbox.getContent();
+    let inboxArray = inbox.getContent();
     // filter array and only get today's results
     inboxArray = inboxArray.filter((todo) => comparerFunction(todo.date));
 
@@ -190,21 +193,21 @@ const inboxManager = (function () {
     return filteredList;
   };
 
-  const _updateFromStorage = function (msg, todosArray) {
+  const updateFromStorage = function (msg, todosArray) {
     todosArray.forEach((todo) => {
       addTodo(todo);
     });
-    PubSub.publish("inbox-initialized", _inbox.getContent());
+    PubSub.publish("inbox-initialized", inbox.getContent());
   };
 
   // gives the correct format to date before passing it to add
-  const _format = function (todoData) {
+  const format = function (todoData) {
     const newDate = new Date(todoData.date);
     todoData.date = newDate;
     return todoData;
   };
 
-  PubSub.subscribe("todos-fetched-from-storage", _updateFromStorage);
+  PubSub.subscribe("todos-fetched-from-storage", updateFromStorage);
 
   return { getInbox, addTodo, deleteTodo, updateTodo, getFilteredInbox };
 })();

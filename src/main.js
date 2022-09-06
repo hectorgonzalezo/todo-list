@@ -13,11 +13,11 @@ import {
   DetailSelector,
 } from "./webpageLibrary";
 
-const visibleArea = (function () {
+(function visibleArea() {
   // toggles through activation/deactivation of all buttons
   // and other inputs when showing popup
-  const _toggleAllInputs = function () {
-    const _visibleInputs = document.querySelectorAll(
+  const toggleAllInputs = function () {
+    const visibleInputs = document.querySelectorAll(
       `#visible-area button, 
             #visible-area li,
             #visible-area .sidebar-list,
@@ -27,20 +27,20 @@ const visibleArea = (function () {
             #visible-area img`
     );
 
-    _visibleInputs.forEach((input) => {
+    visibleInputs.forEach((input) => {
       input.classList.toggle("inactive");
     });
   };
 
-  PubSub.subscribe("popup-toggled", _toggleAllInputs);
+  PubSub.subscribe("popup-toggled", toggleAllInputs);
 })();
 
-const sideBarController = (function () {
-  const _listsArea = document.querySelector("#lists-area");
-  const _buttonAddList = document.querySelector("#lists-area button");
-  const _commonItems = document.querySelectorAll("#common-items-area li");
+(function sideBarController() {
+  const listsArea = document.querySelector("#lists-area");
+  const buttonAddList = document.querySelector("#lists-area button");
+  const commonItems = document.querySelectorAll("#common-items-area li");
 
-  const _removeTrashBins = function () {
+  const removeTrashBins = function () {
     const trashBin = document.querySelector(".trash-bin");
     if (trashBin != null) {
       // if there's one
@@ -48,7 +48,7 @@ const sideBarController = (function () {
     }
   };
 
-  const _removeSelectedClasses = function () {
+  const removeSelectedClasses = function () {
     const selectedField = document.querySelector(".selected");
     if (selectedField != null) {
       // if there's one
@@ -56,11 +56,11 @@ const sideBarController = (function () {
     }
   };
 
-  const _expandList = function (name, field) {
+  const expandList = function (name, field) {
     // if field exists
     // else go to inbox
-    _removeTrashBins();
-    _removeSelectedClasses();
+    removeTrashBins();
+    removeSelectedClasses();
 
     field.classList.add("selected");
     // PubSub.publish('list-clicked', name);
@@ -72,10 +72,10 @@ const sideBarController = (function () {
     field.append(deleteIcon);
 
     // delete list when pressing delete icon
-    deleteIcon.addEventListener("click", _deleteSelectedList);
+    deleteIcon.addEventListener("click", deleteSelectedList);
   };
 
-  const _deleteSelectedList = function (e) {
+  const deleteSelectedList = function (e) {
     e.stopPropagation();
     const selectedList = document.querySelector("div.selected");
     selectedList.remove();
@@ -84,7 +84,7 @@ const sideBarController = (function () {
     inboxField.classList.add("selected");
   };
 
-  const _addList = function (name) {
+  const addList = function (name) {
     // create List field, add name and id
     const listField = document.createElement("div");
     listField.classList.add("list-field");
@@ -95,20 +95,20 @@ const sideBarController = (function () {
     listTitle.classList.add("list-title");
     listField.append(listTitle);
 
-    _listsArea.append(listField);
+    listsArea.append(listField);
 
     // when clicking on listField
     listField.addEventListener("click", () => {
-      _expandList(name, listField);
+      expandList(name, listField);
       PubSub.publish("sidebar-item-selected", name);
     });
   };
 
   // shows prompt to add list
-  const _showListAdder = function () {
+  const showListAdder = function () {
     // prevent multiple presses of button
-    _buttonAddList.disabled = true;
-    _buttonAddList.classList.add("inactive");
+    buttonAddList.disabled = true;
+    buttonAddList.classList.add("inactive");
 
     // creates the field where user will input the new list name
     const inputForm = document.createElement("form");
@@ -127,7 +127,7 @@ const sideBarController = (function () {
 
     inputForm.append(listInput, buttonAdd, buttonCancel);
 
-    _listsArea.append(inputForm);
+    listsArea.append(inputForm);
 
     // add listener for both buttons
     inputForm.addEventListener("submit", (e) => {
@@ -135,59 +135,59 @@ const sideBarController = (function () {
 
       // publish so that listManager can be updated
       PubSub.publish("pressed-add-list", listInput.value);
-      _addList(listInput.value);
-      _buttonAddList.disabled = false;
-      _buttonAddList.classList.remove("inactive");
+      addList(listInput.value);
+      buttonAddList.disabled = false;
+      buttonAddList.classList.remove("inactive");
       inputForm.remove();
     });
 
     buttonCancel.addEventListener("click", () => {
       inputForm.remove();
-      _buttonAddList.disabled = false;
-      _buttonAddList.classList.remove("inactive");
+      buttonAddList.disabled = false;
+      buttonAddList.classList.remove("inactive");
     });
   };
 
   // create lists stored on listManager on site load
-  const _populateInitialLists = function () {
+  const populateInitialLists = function () {
     const existingLists = listManager.getAllLists();
     for (const property in existingLists) {
-      _addList(property);
+      addList(property);
     }
   };
 
   // when pressing button to add lists
-  _buttonAddList.addEventListener("click", _showListAdder);
+  buttonAddList.addEventListener("click", showListAdder);
 
   // add functionality to inbox, today and this week areas
-  _commonItems.forEach((item) => {
+  commonItems.forEach((item) => {
     item.addEventListener("click", () => {
-      _removeTrashBins();
-      _removeSelectedClasses();
+      removeTrashBins();
+      removeSelectedClasses();
       item.classList.add("selected");
       PubSub.publish("sidebar-item-selected", item.innerText);
     });
   });
 
-  PubSub.subscribe("inbox-initialized", _populateInitialLists);
-  // PubSub.subscribe('inbox-updated', _updateLists)
+  PubSub.subscribe("inbox-initialized", populateInitialLists);
+  // PubSub.subscribe('inbox-updated', updateLists)
 })();
 
 // controls details display window
-const mainTodoListController = (function () {
-  const _titleList = document.querySelector("#list-title");
-  const _todoContainer = document.querySelector("#todos-container");
-  const _todos = _todoContainer.children;
-  const _buttonAddTodo = document.querySelector("#button-add-todo");
-  let _currentListInView;
-  let _nameOfSelected;
+(function mainTodoListController() {
+  const titleList = document.querySelector("#list-title");
+  const todoContainer = document.querySelector("#todos-container");
+  const todos = todoContainer.children;
+  const buttonAddTodo = document.querySelector("#button-add-todo");
+  let currentListInView;
+  let nameOfSelected;
 
   // this function looks through the DOM list, and if it finds a
   // todo with a data attribute as the edited one, it keeps the selection
   // this allows to keep selections, even when changing the date
-  const _keepSelection = function (previousName) {
+  const keepSelection = function (previousName) {
     // otherwise, select item indicated by selected argument
-    const containerItems = _todoContainer.children;
+    const containerItems = todoContainer.children;
     const itemsArray = Array.from(containerItems);
     let selectedIndex;
     itemsArray.forEach((item, i) => {
@@ -199,8 +199,8 @@ const mainTodoListController = (function () {
   };
 
   // update left side div with items from list
-  const _renderList = function (msg, listName = "Inbox", previousName) {
-    webpage.cleanDiv(_todoContainer);
+  const renderList = function (msg, listName = "Inbox", previousName) {
+    webpage.cleanDiv(todoContainer);
     let list;
     if (listName == "Inbox" || listName == undefined || listName == "") {
       list = inboxManager.getInbox();
@@ -212,36 +212,36 @@ const mainTodoListController = (function () {
       list = listManager.getList(listName);
     }
 
-    _currentListInView = list.getName();
+    currentListInView = list.getName();
 
     // update title
-    _titleList.innerText = _.capitalize(_currentListInView);
+    titleList.innerText = _.capitalize(currentListInView);
     const listContent = list.getContent();
 
-    // append all of the content to _todoContainer
+    // append all of the content to todoContainer
     // name is sent to be added as a data attribute
     for (const todo of listContent) {
-      _renderTodo(todo, todo.name);
+      renderTodo(todo, todo.name);
     }
     // select first element if list isn't empty
     if (list.getContent().length > 0) {
       if (previousName == undefined) {
         // if none is selected, choose the first
-        _todoContainer.firstChild.classList.add("selected");
+        todoContainer.firstChild.classList.add("selected");
         PubSub.publish("todo-selected", listContent[0]);
-        _nameOfSelected = _currentListInView;
+        nameOfSelected = currentListInView;
       } else {
         // if there's one already selected
-        _keepSelection(previousName);
+        keepSelection(previousName);
       }
     }
   };
 
-  const _renderTodo = function (todo, dataAttribute) {
+  const renderTodo = function (todo, dataAttribute) {
     const wrapper = document.createElement("div");
     wrapper.classList.add("todo");
-    // this will be used to extract _currentIndexOfSelected
-    // which in turn is used by _renderList to determine if there's
+    // this will be used to extract currentIndexOfSelected
+    // which in turn is used by renderList to determine if there's
     // an item selected at the moment
     wrapper.setAttribute("data", dataAttribute);
 
@@ -254,7 +254,7 @@ const mainTodoListController = (function () {
     todoList.innerText = todo.getList();
 
     wrapper.append(checkBox, todoName, todoList);
-    _todoContainer.append(wrapper);
+    todoContainer.append(wrapper);
 
     // if its done, add the corresponding class to wrapper
     if (todo.done == true) {
@@ -266,9 +266,9 @@ const mainTodoListController = (function () {
 
     // add eventListener that selects wrapper
     wrapper.addEventListener("click", () => {
-      _selectTodo(wrapper);
+      selectTodo(wrapper);
       PubSub.publish("todo-selected", todo);
-      _nameOfSelected = wrapper.getAttribute("data");
+      nameOfSelected = wrapper.getAttribute("data");
     });
 
     // pressing on the checkbox updates the todo to be done
@@ -280,124 +280,124 @@ const mainTodoListController = (function () {
     });
   };
 
-  const _selectTodo = function (todoWrapper) {
+  const selectTodo = function (todoWrapper) {
     if (todoWrapper) {
       // prevents from trying when there are no more todos
       // remove selected from the rest of todos
-      const currentTodos = Array.from(_todos);
+      const currentTodos = Array.from(todos);
       currentTodos.forEach((todo) => todo.classList.remove("selected"));
       todoWrapper.classList.add("selected");
     }
   };
 
-  const _removeTodo = function () {
+  const removeTodo = function () {
     // when pressing delete button on details
     const selectedTodo = document.querySelector("#todos-container .selected");
     selectedTodo.remove();
 
-    _selectTodo(_todoContainer.firstChild);
-    _renderList(_currentListInView);
+    selectTodo(todoContainer.firstChild);
+    renderList(currentListInView);
   };
 
-  _buttonAddTodo.addEventListener("click", () => {
+  buttonAddTodo.addEventListener("click", () => {
     PubSub.publish("pressed-add-button");
   });
 
-  PubSub.subscribe("inbox-initialized", _renderList);
-  PubSub.subscribe("sidebar-item-selected", _renderList);
-  PubSub.subscribe("pressed-delete-button", _removeTodo);
-  PubSub.subscribe("list-removed", _renderList);
+  PubSub.subscribe("inbox-initialized", renderList);
+  PubSub.subscribe("sidebar-item-selected", renderList);
+  PubSub.subscribe("pressed-delete-button", removeTodo);
+  PubSub.subscribe("list-removed", renderList);
   // when a todo is edited, render the same list as currently selected
   PubSub.subscribe("todo-saved", (msg, previousName) => {
-    _renderList("", _currentListInView, previousName);
+    renderList("", currentListInView, previousName);
   });
   PubSub.subscribe("object-added-to-inbox", (msg, todo) => {
-    _renderList(msg, todo.list);
+    renderList(msg, todo.list);
   });
 })();
 
 // controls todo details window
-const mainDetailsController = (function () {
-  const _todoArea = document.querySelector("#todo-area");
-  let _detailName;
-  let _detailDate;
-  let _detailPriority;
-  let _detailList;
-  let _detailNotes;
+(function mainDetailsController() {
+  const todoArea = document.querySelector("#todo-area");
+  let detailName;
+  let detailDate;
+  let detailPriority;
+  let detailList;
+  let detailNotes;
 
-  const _removeDetailsContainer = function () {
+  const removeDetailsContainer = function () {
     const previousContainer = document.querySelector("#details-container");
     if (previousContainer) {
       previousContainer.remove();
     }
   };
 
-  const _populateDetails = function (container) {
+  const populateDetails = function (container) {
     // const container = document.querySelector('#details-display');
     webpage.cleanDiv(container);
-    _detailName = document.createElement("h1");
-    _detailName.setAttribute("id", "detail-name");
-    container.append(_detailName);
+    detailName = document.createElement("h1");
+    detailName.setAttribute("id", "detail-name");
+    container.append(detailName);
 
-    _detailDate = new DetailElement("date", "p");
-    _detailDate.appendTo(container);
+    detailDate = new DetailElement("date", "p");
+    detailDate.appendTo(container);
 
-    _detailPriority = new DetailElement("priority");
-    _detailPriority.appendTo(container);
+    detailPriority = new DetailElement("priority");
+    detailPriority.appendTo(container);
 
-    _detailList = new DetailElement("list");
+    detailList = new DetailElement("list");
 
-    _detailList.appendTo(container);
+    detailList.appendTo(container);
 
-    _detailNotes = new DetailElement("notes", "textarea");
-    _detailNotes.appendTo(container);
-    _detailNotes.getElement().setAttribute("readonly", "");
-    _detailNotes.getElement().classList.add("inactive");
+    detailNotes = new DetailElement("notes", "textarea");
+    detailNotes.appendTo(container);
+    detailNotes.getElement().setAttribute("readonly", "");
+    detailNotes.getElement().classList.add("inactive");
   };
 
-  const _populateEditDetails = function () {
+  const populateEditDetails = function () {
     const container = document.querySelector("#details-display");
 
     // extract data from previous elements to fill in the fields
-    const _previousName = _detailName.innerText;
+    const previousName = detailName.innerText;
     // match the correct date format using regex
     // and format function from date-fns
-    let _previousDate = _detailDate.getValue();
-    _previousDate = new Date(_previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
-    _previousDate = format(_previousDate, "yyy-MM-dd");
+    let previousDate = detailDate.getValue();
+    previousDate = new Date(previousDate.match(/\d+\s\w+\,\s\d+/)[0]);
+    previousDate = format(previousDate, "yyy-MM-dd");
 
-    const _previousPriority = _detailPriority.getValue();
-    const _previousList = _detailList.getValue();
-    const _previousNotes = _detailNotes.getValue();
+    const previousPriority = detailPriority.getValue();
+    const previousList = detailList.getValue();
+    const previousNotes = detailNotes.getValue();
 
     webpage.cleanDiv(container);
 
     // add new text input and populate it with previous todo name
-    _detailName = document.createElement("input");
-    _detailName.setAttribute("type", "text");
-    _detailName.setAttribute("id", "detail-name");
+    detailName = document.createElement("input");
+    detailName.setAttribute("type", "text");
+    detailName.setAttribute("id", "detail-name");
 
-    _detailName.value = _previousName;
-    container.append(_detailName);
+    detailName.value = previousName;
+    container.append(detailName);
 
-    _detailDate = new DetailDate("date");
-    _detailDate.changeValue(_previousDate);
-    _detailDate.appendTo(container);
+    detailDate = new DetailDate("date");
+    detailDate.changeValue(previousDate);
+    detailDate.appendTo(container);
 
-    _detailPriority = new DetailSelector("priority", _previousPriority, true);
-    _detailPriority.appendTo(container);
+    detailPriority = new DetailSelector("priority", previousPriority, true);
+    detailPriority.appendTo(container);
 
-    _detailList = new DetailSelector("list", _previousList);
-    _detailList.appendTo(container);
+    detailList = new DetailSelector("list", previousList);
+    detailList.appendTo(container);
 
-    _detailNotes = new DetailElement("notes", "textarea");
-    _detailNotes.appendTo(container);
-    _detailNotes.changeValue(_previousNotes);
+    detailNotes = new DetailElement("notes", "textarea");
+    detailNotes.appendTo(container);
+    detailNotes.changeValue(previousNotes);
   };
 
-  const _addDetailsContainer = function (todo) {
+  const addDetailsContainer = function (todo) {
     // removes previous details container
-    _removeDetailsContainer();
+    removeDetailsContainer();
     // creates the container and displays it in DOM
     const container = document.createElement("div");
     container.classList.add("container");
@@ -409,14 +409,14 @@ const mainDetailsController = (function () {
     detailsDisplay.setAttribute("id", "details-display");
     container.append(title, detailsDisplay);
 
-    _populateDetails(detailsDisplay);
+    populateDetails(detailsDisplay);
 
-    _renderButtons(container, todo.name);
+    renderButtons(container, todo.name);
 
-    _todoArea.append(container);
+    todoArea.append(container);
   };
 
-  const _renderButtons = function (parent, todoName) {
+  const renderButtons = function (parent, todoName) {
     // add div with buttons at the bottom
     const buttonWrapper = document.createElement("div");
     buttonWrapper.setAttribute("id", "details-buttons-area");
@@ -436,38 +436,38 @@ const mainDetailsController = (function () {
     parent.append(buttonWrapper);
 
     // edit button
-    buttonEdit.addEventListener("click", _editTodo);
+    buttonEdit.addEventListener("click", editTodo);
     // delete button
     imgDelete.addEventListener("click", () => {
-      _deleteTodo(imgDelete);
+      deleteTodo(imgDelete);
     });
   };
 
   // when pressing edit todo, change the functionality of button
   // to save edited todo
-  const _changeEditButton = function () {
+  const changeEditButton = function () {
     const buttonSave = document.querySelector("#details-buttons-area > button");
     buttonSave.innerText = "Save todo";
 
-    buttonSave.removeEventListener("click", _editTodo);
+    buttonSave.removeEventListener("click", editTodo);
     buttonSave.addEventListener("click", () => {
-      _saveTodo(buttonSave.getAttribute("data"));
+      saveTodo(buttonSave.getAttribute("data"));
     });
   };
 
   // when pressing "edit todo" button, change the display and button
-  const _editTodo = function () {
-    _populateEditDetails();
-    _changeEditButton();
+  const editTodo = function () {
+    populateEditDetails();
+    changeEditButton();
   };
 
   // updates selected todo
-  const _saveTodo = function (previousName) {
-    const name = _detailName.value;
-    const date = _detailDate.getValue();
-    const priority = _detailPriority.getValue();
-    const list = _detailList.getValue();
-    const notes = _detailNotes.getValue();
+  const saveTodo = function (previousName) {
+    const name = detailName.value;
+    const date = detailDate.getValue();
+    const priority = detailPriority.getValue();
+    const list = detailList.getValue();
+    const notes = detailNotes.getValue();
 
     // give the data the format required by inboxManager
     const todoData = { name, date, priority, list, notes };
@@ -477,107 +477,107 @@ const mainDetailsController = (function () {
     PubSub.publish("todo-saved", previousName);
   };
 
-  const _deleteTodo = function (button) {
+  const deleteTodo = function (button) {
     const todoName = button.getAttribute("data");
     inboxManager.deleteTodo(todoName);
-    _removeDetailsContainer();
+    removeDetailsContainer();
     // remove from inbox
     PubSub.publish("pressed-delete-button");
   };
 
-  const _renderDetails = function (msg, todo) {
+  const renderDetails = function (msg, todo) {
     const dueDate = new Date(todo.date);
-    _addDetailsContainer(todo);
-    _detailName.innerText = todo.name;
+    addDetailsContainer(todo);
+    detailName.innerText = todo.name;
     // date Value
-    _detailDate.changeValue(
+    detailDate.changeValue(
       `${format(dueDate, "dd MMMM, yyyy")} 
                 ${formatDistance(dueDate, Date.now(), { addSuffix: true })}`
     );
-    _detailPriority.changeValue(todo.priority);
-    _detailList.changeValue(todo.list);
-    _detailNotes.changeValue(todo.notes);
+    detailPriority.changeValue(todo.priority);
+    detailList.changeValue(todo.list);
+    detailNotes.changeValue(todo.notes);
   };
 
-  PubSub.subscribe("todo-selected", _renderDetails);
-  // PubSub.subscribe('webpage-loaded', _addDetailsContainer);
-  PubSub.subscribe("sidebar-item-selected", _removeDetailsContainer);
+  PubSub.subscribe("todo-selected", renderDetails);
+  // PubSub.subscribe('webpage-loaded', addDetailsContainer);
+  PubSub.subscribe("sidebar-item-selected", removeDetailsContainer);
 })();
 
-const popupFormController = (function () {
-  const _form = document.querySelector("#popup > form");
+(function popupFormController() {
+  const form = document.querySelector("#popup > form");
 
-  const _clearForm = function () {
-    _form.reset();
+  const clearForm = function () {
+    form.reset();
   };
 
-  const _createTodo = function () {
+  const createTodo = function () {
     // extract data from form and make it a FormData
-    const formData = new FormData(_form);
+    const formData = new FormData(form);
     const todoData = Object.fromEntries(formData.entries());
     todoData.date = new Date(todoData.date);
 
     // add to inbox
     inboxManager.addTodo(todoData);
 
-    _clearForm();
+    clearForm();
   };
 
   PubSub.subscribe("pressed-create-button", () => {
-    _createTodo();
-    _clearForm();
+    createTodo();
+    clearForm();
   });
 })();
 
 const popupDisplay = (function () {
-  const _popup = document.querySelector("#popup");
-  const _listsSelector = document.querySelector("#add-todo-list");
-  const _buttonCreate = document.querySelector("#popup-button");
-  const _buttonClose = document.querySelector("#close-pop-up");
-  const _dateInput = document.querySelector("input#date");
-  const _dateWarning = document.querySelector("#date-warning");
-  const _form = document.querySelector("#popup > form");
+  const popup = document.querySelector("#popup");
+  const listsSelector = document.querySelector("#add-todo-list");
+  const buttonCreate = document.querySelector("#popup-button");
+  const buttonClose = document.querySelector("#close-pop-up");
+  const dateInput = document.querySelector("input#date");
+  const dateWarning = document.querySelector("#date-warning");
+  const form = document.querySelector("#popup > form");
 
   // hide or show popup
-  const _toggle = function () {
-    _popup.classList.toggle("invisible");
+  const toggle = function () {
+    popup.classList.toggle("invisible");
     PubSub.publish("popup-toggled");
   };
 
-  const _populateListsSelector = function () {
+  const populateListsSelector = function () {
     selectorPopulator.populateLists(
-      _listsSelector,
+      listsSelector,
       "",
       listManager.getAllLists()
     );
   };
 
   // if the user chooses a date that passed, highlight the input
-  _dateInput.addEventListener("change", () => {
-    const chosenDate = new Date(_dateInput.value);
+  dateInput.addEventListener("change", () => {
+    const chosenDate = new Date(dateInput.value);
     if (isPast(chosenDate)) {
-      _dateInput.classList.add("invalid");
+      dateInput.classList.add("invalid");
     } else {
-      _dateWarning.classList.remove("visible");
-      _dateInput.classList.remove("invalid");
+      dateWarning.classList.remove("visible");
+      dateInput.classList.remove("invalid");
     }
   });
 
-  _buttonCreate.addEventListener("click", (e) => {
-    const chosenDate = new Date(_dateInput.value);
+  buttonCreate.addEventListener("click", (e) => {
+    const chosenDate = new Date(dateInput.value);
     // if the user chooses a date that passed,  show warning
 
     if (isPast(chosenDate)) {
-      _dateWarning.classList.add("visible");
-    } else if (_form.checkValidity()) {
+      dateWarning.classList.add("visible");
+    } else if (form.checkValidity()) {
       e.preventDefault();
-      _dateWarning.classList.remove("visible");
-      _toggle();
+      dateWarning.classList.remove("visible");
+      toggle();
       PubSub.publish("pressed-create-button");
     }
   });
-  _buttonClose.addEventListener("click", _toggle);
+  buttonClose.addEventListener("click", toggle);
 
-  PubSub.subscribe("pressed-add-button", _toggle);
-  PubSub.subscribe("pressed-add-button", _populateListsSelector);
+  PubSub.subscribe("pressed-add-button", toggle);
+  PubSub.subscribe("pressed-add-button", populateListsSelector);
 })();
