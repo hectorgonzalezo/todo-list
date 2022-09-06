@@ -16,7 +16,7 @@
     --color-medium-dark: #38bdf8;
     --color-dark: #0c4a6e;
     --color-complementary-light: rgb(228, 148, 148);
-    --color-complementary-dark: rgb(4, 58, 7);
+    --color-complementary-dark: rgb(97, 21, 21);
     --done-icon: url('./assets/done-icon.png');
     --past-icon: url('./assets/cross-icon.png');
     font-family: "lora";
@@ -377,7 +377,7 @@ body .sidebar-list,
     font-weight: bolder;
     font-style: italic;
     font-size: 1.2rem;
-    color:  var(--color-complementary2-dark)
+    color:  var(--color-complementary-dark)
 }
 
 

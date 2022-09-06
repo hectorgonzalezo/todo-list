@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {compareAsc, isToday} from 'date-fns';
+import {compareAsc} from 'date-fns';
 import storage from './storage.js'
 //todo class
 class Todo {
