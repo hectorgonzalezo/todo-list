@@ -7,6 +7,30 @@ import './style.css';
 import {webpage, selectorPopulator, DetailElement, DetailDate, DetailSelector} from'./webpageLibrary.js'
 
 
+const visibleArea =(
+    function() {
+        //toggles through activation/deactivation of all buttons 
+        //and other inputs when showing popup
+        const _toggleAllInputs = function(){
+            const _visibleArea = document.querySelector('#visible-area')
+        const _visibleInputs= document.querySelectorAll(
+            `#visible-area button, 
+            #visible-area li,
+            #visible-area .sidebar-list,
+            #visible-area textarea,
+            #visible-area input,
+            #visible-area select,
+            #visible-area img`);
+
+           _visibleInputs.forEach((input) => {
+            input.classList.toggle('inactive')
+           })
+        }
+
+        PubSub.subscribe('popup-toggled', _toggleAllInputs)
+    }
+)()
+
 const sideBarController = (
     function () {
         const _sideBar = document.querySelector('#sidebar');
@@ -83,6 +107,7 @@ const sideBarController = (
         const _showListAdder = function () {
             //prevent multiple presses of button
             _buttonAddList.disabled = true;
+            _buttonAddList.classList.add('inactive');
 
             //creates the field where user will input the new list name
             const inputForm = document.createElement('form');
@@ -111,12 +136,14 @@ const sideBarController = (
                 PubSub.publish('pressed-add-list', listInput.value);
                 _addList(listInput.value);
                 _buttonAddList.disabled = false;
+                _buttonAddList.classList.remove('inactive');
                 inputForm.remove();
             });
 
             buttonCancel.addEventListener('click', () => {
                 inputForm.remove();
                 _buttonAddList.disabled = false;
+                _buttonAddList.classList.remove('inactive');
             });
         };
 
