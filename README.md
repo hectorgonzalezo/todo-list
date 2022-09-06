@@ -1,4 +1,4 @@
-#  Todo list
+# Todo list
 
 by Héctor Gonzalez Orozco
 

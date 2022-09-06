@@ -8,13 +8,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
-    "start": "webpack serve --open"
+    "start": "webpack serve --open",
+    "lint": "./node_modules/.bin/eslint"
   },
   "author": "Hector Gonzalez Orozco",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^6.7.1",
+    "eslint": "^8.23.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "prettier": "2.7.1",
     "style-loader": "^3.3.1",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
@@ -24,5 +33,8 @@
     "date-fns": "^2.29.2",
     "lodash": "^4.17.21",
     "pubsub-js": "^1.9.4"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
