@@ -21,10 +21,6 @@
   font-family: "lora";
 }
 
-/* * {
-    outline: dashed red;
-} */
-
 body button {
   background-color: var(--color-background);
   border-radius: 0.8rem;
@@ -75,10 +71,10 @@ button:active {
   width: 100%;
   display: grid;
   grid-template-rows: 1fr 8fr 50px;
+  transition: opacity 1s;
 }
 
 #visible-area.invisible {
-  animation: fadeOut 1s;
   opacity: 0.2;
 }
 
@@ -297,7 +293,6 @@ body .sidebar-list,
 
 .todo.selected {
   background-color: var(--color-medium-dark);
-  outline: solid 1px var(--color-dark);
 }
 
 .todo.done {
@@ -413,6 +408,8 @@ body .sidebar-list,
   display: grid;
   grid-template-columns: 10fr 1fr;
   grid-template-rows: 1fr 10fr;
+  transition: opacity 1s ease-in;
+  opacity: 1;
 }
 
 #popup > h1 {
@@ -428,7 +425,7 @@ body .sidebar-list,
 }
 
 #popup.invisible {
-  animation: fadeOut 1s;
+  opacity: 0;
   left: -50%;
 }
 
@@ -508,7 +505,7 @@ footer {
   height: 50px;
   width: 100%;
   gap: 2vw;
-  background-color: grey;
+  background-color: var(--color-dark);
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
