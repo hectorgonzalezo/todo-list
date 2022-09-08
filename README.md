@@ -12,3 +12,7 @@ Build as part of [The Odin Project](https://www.theodinproject.com/) curriculum.
 ## Live Preview
 
 [https://hectorgonzalezo.github.io/todo-list/](https://hectorgonzalezo.github.io/todo-list/)
+
+## Acknowledgements
+
+- Tab icons by [Icons8](https://icons8.com).
