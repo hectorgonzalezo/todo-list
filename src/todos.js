@@ -56,7 +56,6 @@ const List = function (name) {
   }
 
   const update = function (todoName, updatedTodo) {
-    console.log("update");
     // find todo index and update information
     const indexOfTodoToUpdate = content.findIndex(
       (todo) => todo.name === todoName
@@ -133,8 +132,9 @@ const listManager = (function () {
   function updateList(msg, updatedTodo) {
     for (const listName in lists) {
       const list = lists[listName];
-      console.log(list.update);
-      list.update(updatedTodo);
+      if (list !== "Inbox") {
+        list.update(updatedTodo);
+      }
     }
   }
 
