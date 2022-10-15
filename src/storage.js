@@ -1,5 +1,5 @@
 import PubSub from "pubsub-js";
-import { saveMessage } from "./firebaseCommunication";
+import { database } from "./firebaseCommunication";
 
 // this function checks if there's storage available to implement persistence of todos.
 const storage = (function () {
@@ -49,27 +49,30 @@ const storage = (function () {
     // if there's local storage available, store any todos made by user
     if (storageAvailable("localStorage")) {
       // if there's previous data on storage, display it
-      if (localStorage.length > 0) {
-        const storedTodos = getAll();
-        PubSub.publish("todos-fetched-from-storage", storedTodos);
-      }
+      // if (localStorage.length > 0) {
+      // const storedTodos = getAll();
+      database.getTodos().then((todos) => {
+        PubSub.publish("todos-fetched-from-storage", todos);
+      });
+      // }
     }
   }
 
   function add(todo) {
+    // const stringifiedTodo = JSON.stringify(todo)
     // convert object to string and save it in local storage
-    localStorage.setItem(todo.name, JSON.stringify(todo));
+    // localStorage.setItem(todo.name, stringifiedTodo);
     // save on firebase
-    saveMessage(todo.name);
+    database.saveTodo(todo);
   }
 
   function remove(todoName) {
-    localStorage.removeItem(todoName);
+    // localStorage.removeItem(todoName);
+    database.deleteTodo(todoName);
   }
 
-  function update(previousName, updatedTodo) {
-    remove(previousName);
-    add(updatedTodo);
+  async function update(previousName, updatedTodo) {
+    database.updateTodo(previousName, updatedTodo);
   }
 
   PubSub.subscribe("webpage-loaded", startStorage);

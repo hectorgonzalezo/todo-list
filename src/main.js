@@ -253,7 +253,7 @@ import { saveMessage } from "./firebaseCommunication";
     const todoName = document.createElement("h3");
     todoName.innerText = todo.getName();
     const todoList = document.createElement("p");
-    todoList.innerText = todo.getList();
+    todoList.innerText = todo.getList() || "";
 
     wrapper.append(checkBox, todoName, todoList);
     todoContainer.append(wrapper);
