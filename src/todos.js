@@ -112,7 +112,7 @@ const listManager = (function () {
   function addToList(msg, todo) {
     const todoListName = todo.list;
     // if todo list exists, add it there
-    if (Object.prototype.hasOwnProperty.call(lists, todoListName)) {
+    if (lists.todoListName !== undefined) {
       lists[todoListName].add(todo);
     } else if (todoListName !== "") {
       // if listName doesnt exist and isn't empty option, create it
@@ -153,13 +153,16 @@ const inboxManager = (function () {
     return inbox;
   };
 
-  const addTodo = function (data) {
+  const addTodo = function (data, msg) {
     const newTodo = Object.assign(new Todo(), format(data));
     inbox.add(newTodo);
     PubSub.publish("object-added-to-inbox", newTodo);
 
-    // add to local storage
-    storage.add(newTodo);
+    if (msg !== "todos-fetched-from-storage") {
+      // add to local storage only if message wasnt sent after fetching from local storage
+      storage.add(newTodo);
+      console.log(msg);
+    }
   };
 
   const deleteTodo = function (todoName) {
@@ -195,7 +198,7 @@ const inboxManager = (function () {
 
   const updateFromStorage = function (msg, todosArray) {
     todosArray.forEach((todo) => {
-      addTodo(todo);
+      addTodo(todo, msg);
     });
     PubSub.publish("inbox-initialized", inbox.getContent());
   };

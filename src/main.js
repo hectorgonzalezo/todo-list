@@ -1,7 +1,6 @@
 import PubSub from "pubsub-js";
 import { isToday, isThisWeek, isPast, format, formatDistance } from "date-fns";
 import _ from "lodash";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
 import deleteIconUrl from "./assets/delete-icon.png";
 import { listManager, inboxManager } from "./todos";
 import deleteIconBlackUrl from "./assets/delete-icon-black.png";
@@ -14,6 +13,7 @@ import {
   DetailSelector,
 } from "./webpageLibrary";
 import "./header";
+import { saveMessage } from "./firebaseCommunication";
 
 (function visibleArea() {
   // toggles through activation/deactivation of all buttons

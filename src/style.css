@@ -117,11 +117,11 @@ header img:first-of-type {
   width: clamp(130px, 15vw, 300px);
 }
 
-#user-area img {
+#user-area img:not([src=""]) {
   width: 42px;
   height: 42px;
   border-radius: 100%;
-  border: 1px solid var(--color-light);
+  outline: 2px solid var(--color-medium-light);
 }
 
 main {

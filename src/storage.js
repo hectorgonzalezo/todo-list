@@ -1,4 +1,5 @@
 import PubSub from "pubsub-js";
+import { saveMessage } from "./firebaseCommunication";
 
 // this function checks if there's storage available to implement persistence of todos.
 const storage = (function () {
@@ -58,6 +59,8 @@ const storage = (function () {
   function add(todo) {
     // convert object to string and save it in local storage
     localStorage.setItem(todo.name, JSON.stringify(todo));
+    // save on firebase
+    saveMessage(todo.name);
   }
 
   function remove(todoName) {
