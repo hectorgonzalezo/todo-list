@@ -21,6 +21,10 @@
   font-family: "lora";
 }
 
+body {
+  min-width: 800px;
+}
+
 body button {
   background-color: var(--color-background);
   border-radius: 0.8rem;
@@ -51,7 +55,7 @@ select {
 body input:hover,
 textarea:hover,
 select:hover {
-  background-color: var(--color-light);
+  background-color: var(--color-medium-light);
   cursor: pointer;
 }
 
@@ -82,12 +86,10 @@ button:active {
 
 header {
   background-color: var(--color-dark);
-  height: 6rem;
-  width: auto;
+  min-height: 6rem;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: calc(50vw - 12rem);
+  justify-content: space-between;
   padding: 0px 50px 0px 20px;
 }
 
@@ -97,10 +99,29 @@ header > h1 {
   font-weight: bold;
   text-shadow: 1px 1px 2px var(--color-medium-dark);
   letter-spacing: 0.5rem;
+  flex-shrink: 0;
 }
 
 header img:first-of-type {
   width: auto;
+}
+
+#user-area {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-light);
+}
+
+#user-area p {
+  width: clamp(130px, 15vw, 300px);
+}
+
+#user-area img {
+  width: 42px;
+  height: 42px;
+  border-radius: 100%;
+  border: 1px solid var(--color-light);
 }
 
 main {
@@ -109,7 +130,6 @@ main {
   grid-template-columns: minmax(150px, 1fr) 7fr;
   align-content: stretch;
   align-items: stretch;
-  min-width: 800px;
 }
 
 #sidebar {
