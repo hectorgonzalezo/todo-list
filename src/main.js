@@ -13,7 +13,6 @@ import {
   DetailSelector,
 } from "./webpageLibrary";
 import "./header";
-import { saveMessage } from "./firebaseCommunication";
 
 (function visibleArea() {
   // toggles through activation/deactivation of all buttons

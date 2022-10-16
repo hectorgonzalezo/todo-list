@@ -6,7 +6,6 @@ import {
   doc,
   getDocs,
   deleteDoc,
-  updateDoc,
   orderBy,
   serverTimestamp,
 } from "firebase/firestore";
@@ -16,16 +15,15 @@ import {
   GoogleAuthProvider,
   signOut,
   signInWithPopup,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { getFirebaseConfig } from "./firebase-config";
+import PubSub from "pubsub-js";
 
 const firebaseApp = initializeApp(getFirebaseConfig());
 
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-
-const todosCol = collection(db, "todos");
-// const snapshot = await getDocs(todosCol);
 
 function getProfilePicUrl() {
   return getAuth().currentUser.photoURL || "";
@@ -33,7 +31,7 @@ function getProfilePicUrl() {
 
 // Returns the signed-in user's display name.
 function getUserName() {
-  return getAuth().currentUser.displayName || "";
+  return getAuth().currentUser.displayName || "Sign in to view todos";
 }
 
 async function signIn(e) {
@@ -47,10 +45,16 @@ async function signIn(e) {
   }
 }
 
+onAuthStateChanged(auth, (user) => {
+  if (user != null) {
+    getTodos();
+  }
+});
+
 async function saveTodo(todo) {
   // Add a new message entry to the Firebase database.
   try {
-    await addDoc(collection(db, "todos"), {
+    await addDoc(collection(db, `${auth.currentUser.uid}todos`), {
       userName: getAuth().currentUser.displayName,
       name: todo.name,
       notes: todo.notes || "",
@@ -66,36 +70,48 @@ async function saveTodo(todo) {
 }
 
 async function getTodos() {
-  // Create the query to load the last 12 messages and listen for new ones.
-  const todosQuery = await getDocs(
-    collection(db, "todos"),
-    orderBy("date", "desc")
-  );
-  const todos = [];
-  todosQuery.forEach((todo) => {
-    const { name, date, priority, list, notes } = todo.data();
-    todos.push({ name, date, priority, list, notes });
-  });
-  return todos;
+  if (auth.currentUser !== null) {
+    // Create the query to load the last 12 messages and listen for new ones.
+    const todosQuery = await getDocs(
+      collection(db, `${auth.currentUser.uid}todos`),
+      orderBy("date", "desc")
+    );
+    const todos = [];
+    todosQuery.forEach((todo) => {
+      const { name, date, priority, list, notes } = todo.data();
+      todos.push({ name, date, priority, list, notes });
+    });
+    PubSub.publish("todos-fetched-from-storage", todos);
+    return todos;
+  }
+  return [];
 }
 
 async function deleteTodo(todoName) {
-  const todosQuery = await getDocs(collection(db, "todos"));
-  todosQuery.forEach((todo) => {
-    if (todo.data().name === todoName) {
-      deleteDoc(doc(db, "todos", todo.id));
-    }
-  });
+  if (auth.currentUser !== null) {
+    const todosQuery = await getDocs(
+      collection(db, `${auth.currentUser.uid}todos`)
+    );
+    todosQuery.forEach((todo) => {
+      if (todo.data().name === todoName) {
+        deleteDoc(doc(db, `${auth.currentUser.uid}todos`, todo.id));
+      }
+    });
+  }
 }
 
 async function updateTodo(todoName, todo) {
-  const todosQuery = await getDocs(collection(db, "todos"));
-  todosQuery.forEach(async (todoUpdate) => {
-    if (todoUpdate.data().name === todoName) {
-      await deleteTodo(todoName);
-      await saveTodo(todo);
-    }
-  });
+  if (auth.currentUser !== null) {
+    const todosQuery = await getDocs(
+      collection(db, `${auth.currentUser.uid}todos`)
+    );
+    todosQuery.forEach(async (todoUpdate) => {
+      if (todoUpdate.data().name === todoName) {
+        await deleteTodo(todoName);
+        await saveTodo(todo);
+      }
+    });
+  }
 }
 
 const database = { saveTodo, getTodos, deleteTodo, updateTodo };

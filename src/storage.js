@@ -4,9 +4,7 @@ import { database } from "./firebaseCommunication";
 // this function checks if there's storage available to implement persistence of todos.
 const storage = (function () {
   function startStorage() {
-    database.getTodos().then((todos) => {
-      PubSub.publish("todos-fetched-from-storage", todos);
-    });
+    database.getTodos();
   }
 
   function add(todo) {

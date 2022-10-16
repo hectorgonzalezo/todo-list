@@ -56,6 +56,7 @@ const List = function (name) {
   }
 
   const update = function (todoName, updatedTodo) {
+    console.log({ todoName });
     // find todo index and update information
     const indexOfTodoToUpdate = content.findIndex(
       (todo) => todo.name === todoName
@@ -111,9 +112,10 @@ const listManager = (function () {
 
   function addToList(msg, todo) {
     const todoListName = todo.list;
+    console.log(todoListName);
     // if todo list exists, add it there
     if (Object.prototype.hasOwnProperty.call(lists, todoListName)) {
-      lists[todoListName].add(todo);
+      getList(lists[todoListName]).add(todo);
     } else if (todoListName !== "") {
       // if listName doesnt exist and isn't empty option, create it
       addList("", todoListName);
@@ -130,10 +132,11 @@ const listManager = (function () {
   }
 
   function updateList(msg, updatedTodo) {
+    const [previousName, todo] = updatedTodo;
     for (const listName in lists) {
       const list = lists[listName];
       if (list !== "Inbox") {
-        list.update(updatedTodo);
+        list.update(previousName, updatedTodo);
       }
     }
   }
@@ -177,7 +180,7 @@ const inboxManager = (function () {
     const updatedTodo = Object.assign(new Todo(), format(data));
     inbox.update(previousName, updatedTodo);
     PubSub.publish("todo-selected", data);
-    PubSub.publish("todo-updated", updatedTodo);
+    PubSub.publish("todo-updated", [previousName, updatedTodo]);
 
     // update local storage
     storage.update(previousName, updatedTodo);
